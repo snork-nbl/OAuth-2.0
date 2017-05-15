@@ -1,0 +1,14 @@
+{
+    "modelId": "kvafblKLETdX" /* oauth_test */,
+    "devices": [
+        "23d8caacc17e10ee" /* rlyeh */
+    ],
+    "agentFile": "OAuth2.DeviceFlow.agent.lib.nut",
+    "deviceFile": false,
+    "stopOnFailure": true,
+    "timeout": 300,
+    "tests": [
+        "*.test.nut",
+        "tests/**/*.test.nut"
+    ]
+}

@@ -1,1 +1,197 @@
-# OAuth
+# OAuth2 DeviceFlow Client
+
+This library implements the OAuth2 authorization flow for for browserless and input constrained devices. The implementation conforms to limited device authorization [spec](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05). The Client is tested and verified on the Firebase authorization flow.
+
+Basic functionality consists of following actions:
+
+- Token acquisition
+- Checking if token is valid
+- Checking if the application is authorized
+- Refresh operation for expired access token
+
+As one of possible usages library  provides table  `OAuth2.DeviceFlow.GOOGLE` that contains constants specific to Google Firebase use case. The table
+provides both `LOGIN_HOST` and `TOKEN_HOST` and also overrides `GRANT_TYPE`. The one specified by RFE does not fit Firebase case.
+If user leaves it empty, default `urn:ietf:params:oauth:grant-type:device_code` will be used.
+
+**To add this library to your project, add** `#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0"` **to the top of your agent code**
+
+
+## OAuth2.DeviceFlow.Client public methods
+
+### constructor(providerSettings, userSettings)
+
+Client constructor. Accepts service specific OAuth2 provider configuration table `providerSettings` and user specific table `userSettings`.
+The first argument must contain `LOGIN_HOST`, `TOKEN_HOST` may contain optional `GRANT_TYPE`. The second
+argument must contain `clientId`, `scope` and may contain optional `clientSecret`.
+
+#### Example
+
+```squirrel
+    providerSettings =  {
+        "LOGIN_HOST" : "https://accounts.google.com/o/oauth2/device/code",
+        "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token",
+        "GRANT_TYPE" : "http://oauth.net/grant_type/device/1.0",
+    };
+    userSettings = {
+        "clientId"     : "USER_FIREBASE_CLIENT_ID",
+        "clientSecret" : "USER_FIREBASE_CLIENT_SECRET",
+        "scope"        : "email profile",
+    };
+
+    client <- OAuth2.DeviceFlow.Client(providerSettings, userSettings);
+```
+
+### acquireAccessToken(tokenReadyCallback, notifyUserCallback, force)
+
+Starts access token acquisition procedure. Depending on Client state may starts full client authorization procedure or
+just token refreshing. Returns null in case of success and error otherwise.
+
+Parameter details:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| *tokenReadyCallback* | Function | The handler to be called when access token is acquired or error is observed |
+| *notifyUserCallback* | Function | The handler to be called when user action is required. See [RFE, device flow, section3.3](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05#section-3.3) |
+| *[force]* | Boolean | [optional] the directive to start new acquisition procedure even if previous request is not complete. Default value is `false` |
+
+`tokenReadyCallback` parameters:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| token | String | String representation of access token |
+| error | Table | Table with  error details, `null` in case of success |
+
+
+`notifyUserCallback` parameters:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| uri | String | the URI the user need to use for client authorization |
+| code | String | the code the user need to use somewhere at authorization server |
+
+#### Example
+
+Using `client` from previous sample
+
+```squirrel
+client.acquireAccessToken(
+    function(resp, err) {
+        server.log(resp);
+        if (err) {
+            server.error(err);
+        }
+    },
+    function(url, code) {
+        server.log("Authorization is pending. Please grant access.");
+        server.log("URL: " + url);
+        server.log("CODE: " + code);
+    }
+);
+```
+### getValidAccessTokeOrNull()
+
+Returns access token string non blocking way. Returns access token as a string object if token is valid, null if the client is not authorized or token is expired.
+
+#### Example
+
+Using `client` from the first sample
+
+```squirrel
+local token = client.getValidAccessTokeOrNull();
+if (token) server.log("token is valid and has value: " + token);
+else server.log("token is either expired  or client is not authorized!");
+```
+
+### isTokenValid()
+
+Checks if access token is valid.
+
+#### Example
+
+Using `client` from the first sample
+
+```squirrel
+server.log("token is valid=" + client.isTokenValid());
+```
+
+### isAuthorized()
+
+Checks if the client is authorized and able to refresh expired access token.
+
+Using `client` from the first sample
+
+```squirrel
+server.log("client is authorized=" + client.isAuthorized());
+```
+
+
+### refreshAccessToken(tokenReadyCallback)
+
+Refreshes access token non blocking way, will invoke `tokenReadyCallback` in case of success.
+
+`tokenReadyCallback` parameters:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| token | String | String representation of access token |
+| error | Table | Table with  error details, `null` in case of success |
+
+#### Example
+
+Using `client` from the first sample
+
+```squirrel
+client.refreshAccessToken(
+    function(resp, err) {
+        server.log(resp);
+        if (err) {
+            server.error(err);
+        }
+    }
+);
+```
+
+## Complete usage sample
+
+To connect all the parts together and show a sample of common case of library usage let's take a look a following sample
+
+```squirrel
+#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0"
+
+// Fill CLIENT_ID and CLIENT_SECRET with correct values
+local userConfig = {
+    "clientId"     : "CLIENT_ID",
+    "clientSecret" : "CLIENT_SECRET",
+    "scope"        : "email profile",
+};
+
+// Initializing client with provided Google Firebase config
+client <- OAuth2.DeviceFlow.Client(OAuth2.DeviceFlow.GOOGLE, userConfig);
+
+local token = client.getValidAccessTokeOrNull();
+if (token != null) {
+    server.log("Valid access token is: " + token);
+} else {
+    // Starting procedure of access token acquisition
+    local error = client.acquireAccessToken(
+        function(resp, err) {
+            if (err) {
+                server.error("Token acquisition error: " + err);
+            } else {
+                server.log("Received token: " + resp);
+            }
+        },
+        function(url, code) {
+            server.log("Authorization is pending. Please grant access.");
+            server.log("URL: " + url);
+            server.log("CODE: " + code);
+        }
+    );
+
+    if (null != error) server.error("Failed to obtain token: " + error);
+}
+```
+
+# License
+
+The OAuth library is licensed under the [MIT License](LICENSE).
