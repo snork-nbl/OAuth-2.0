@@ -1,6 +1,6 @@
 # OAuth2 DeviceFlow Client
 
-This library implements the OAuth2 authorization flow for for browserless and input constrained devices. The implementation conforms to limited device authorization [spec](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05). The Client is tested and verified on the Firebase authorization flow.
+This library implements the OAuth2 authorization flow for for browserless and input constrained devices. The implementation conforms to limited device authorization [spec](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05).
 
 Basic functionality consists of following actions:
 
@@ -9,9 +9,8 @@ Basic functionality consists of following actions:
 - Checking if the application is authorized
 - Refresh operation for expired access token
 
-As one of possible usages library  provides table  `OAuth2.DeviceFlow.GOOGLE` that contains constants specific to Google Firebase use case. The table
-provides both `LOGIN_HOST` and `TOKEN_HOST` and also overrides `GRANT_TYPE`. The one specified by RFE does not fit Firebase case.
-If user leaves it empty, default `urn:ietf:params:oauth:grant-type:device_code` will be used.
+The Client is tested and verified on the Google 
+[Firebase](https://firebase.google.com) authorization flow.
 
 **To add this library to your project, add** `#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0"` **to the top of your agent code**
 
@@ -20,9 +19,28 @@ If user leaves it empty, default `urn:ietf:params:oauth:grant-type:device_code` 
 
 ### constructor(providerSettings, userSettings)
 
-Client constructor. Accepts service specific OAuth2 provider configuration table `providerSettings` and user specific table `userSettings`.
-The first argument must contain `LOGIN_HOST`, `TOKEN_HOST` may contain optional `GRANT_TYPE`. The second
-argument must contain `clientId`, `scope` and may contain optional `clientSecret`.
+Construction that creates an instance of the OAuth2 Client. 
+
+The first parameter `providerSettings` is a map that contains provider specific settings:
+ 
+| Parameter | Type | Default Value | Description |
+| --- | --- | --- | --- |
+| `LOGIN_HOST` | string | mandatory field |Provider's authorization server  |
+| `TOKEN_HOST` | string | mandatory field | URL of the endpoint to poll for authorization response |
+| `GRANT_TYPE` | string | `urn:ietf:params:oauth:grant-type:device_code` |Grant type value supported by the provider |
+
+The second parameter `userSettings` defines a map with user and application specific settings:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `clientId` | string | OAuth client ID |
+| `clientSecret` | string | The project's client secret |
+| `scope` | string | Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application. |
+
+The library provides predefined configuration settings for 
+Google Device Auth flow. These settings are defined in the provider 
+specific settings map:`OAuth2.DeviceFlow.GOOGLE`. The table
+provides `LOGIN_HOST`, `TOKEN_HOST` and `GRANT_TYPE` values. 
 
 #### Example
 
@@ -156,7 +174,7 @@ client.refreshAccessToken(
 To connect all the parts together and show a sample of common case of library usage let's take a look a following sample
 
 ```squirrel
-#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0"
+#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0
 
 // Fill CLIENT_ID and CLIENT_SECRET with correct values
 local userConfig = {
