@@ -25,9 +25,9 @@ The first parameter `providerSettings` is a map that contains provider specific 
  
 | Parameter | Type | Default Value | Description |
 | --- | --- | --- | --- |
-| `LOGIN_HOST` | string | mandatory field |Provider's authorization server  |
-| `TOKEN_HOST` | string | mandatory field | URL of the endpoint to poll for authorization response |
-| `GRANT_TYPE` | string | `urn:ietf:params:oauth:grant-type:device_code` |Grant type value supported by the provider |
+| `LOGIN_HOST` | string | mandatory field | Authorization endpoint - used by the client to obtain authorization from the resource owner via user-agent redirection. authorization server  |
+| `TOKEN_HOST` | string | mandatory field | Token endpoint - used by the client to exchange an authorization grant for an access token, typically with client authentication. |
+| `GRANT_TYPE` | string | `urn:ietf:params:oauth:grant-type:device_code` | Grant type identifier supported by the provider |
 
 The second parameter `userSettings` defines a map with user and application specific settings:
 
