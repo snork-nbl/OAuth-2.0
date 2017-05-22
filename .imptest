@@ -3,7 +3,7 @@
     "devices": [
         "23349c7838a609ee" /* */
     ],
-    "agentFile": "OAuth2.agent.lib.nut",
+    "agentFile": "tests/inc.agent.nut",
     "deviceFile": false,
     "stopOnFailure": true,
     "timeout": 300,
