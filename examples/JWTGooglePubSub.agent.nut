@@ -34,7 +34,7 @@ const AWS_ACCESS_KEY_ID = "";
 const AWS_SECRET_ACCESS_KEY = "";
 local lambda = AWSLambda(AWS_LAMBDA_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
 
-local userConfig = {
+local config = {
     "iss"         : GOOGLE_ISS,
     "jwtSignKey"  : GOOGLE_SECRET_KEY,
     "scope"       : "https://www.googleapis.com/auth/pubsub",
@@ -42,7 +42,7 @@ local userConfig = {
 };
 
 // Initializing client with provided Google Firebase config
-client <- OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, userConfig);
+client <- OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
 
 local token = client.getValidAccessTokeOrNull();
 if (token != null) {
