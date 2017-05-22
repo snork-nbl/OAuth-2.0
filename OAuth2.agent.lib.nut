@@ -39,14 +39,14 @@ enum Oauth2DeviceFlowState {
 };
 
 // The class that introduces OAuth2 namespace
-class OAuth2 {}
+class OAuth2 {
+    static VERSION = "1.0.0";
+}
 
 // The class that represents OAuth 2.0 authorization flow
 // for browserless and input constrained devices.
 // https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05
 class OAuth2.DeviceFlow {
-
-    static VERSION = "1.0.0";
 
     // Predefined configuration for Google Authorization service
     GOOGLE =  {
@@ -577,8 +577,6 @@ class OAuth2.DeviceFlow {
 // https://tools.ietf.org/html/rfc7523
 class  OAuth2.JWTProfile {
 
-    static version = "1.0.0";
-
     Client = class {
 
         // OAuth2 provider's token endpoint
@@ -592,7 +590,7 @@ class  OAuth2.JWTProfile {
         // Private key for JWT sign
         _jwtSignKey = null;
         // Subject of the JWT
-        _sub    = null;
+        _sub = null;
 
         // Credentials used to access protected resources
         _accessToken = null;
@@ -759,7 +757,7 @@ class  OAuth2.JWTProfile {
                 userCallback(client._accessToken, err);
             } else {
                 // Error getting token
-                local mess = "Error getting token: "+resp.statuscode+" "+resp.body;
+                local mess = "Error getting token: " + resp.statuscode + " " + resp.body;
                 client._error(mess);
                 userCallback(null, mess);
             }

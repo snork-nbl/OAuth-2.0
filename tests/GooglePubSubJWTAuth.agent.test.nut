@@ -32,7 +32,7 @@ class GooglePubSubJWTAuth extends ImpTestCase {
     static SECRET_KEY = "#{env:_SECRET_KEY_}";
 
     function setUp() {
-        local lambda = AWSLambda("#{env:LAMBDA_REGION}", "#{env:LAMBDA_ID}", "#{env:LAMBDA_KEY}");
+        local lambda = AWSLambda("#{env:LAMBDA_REGION}", "#{env:LAMBDA_ACCESS_KEY_ID}", "#{env:LAMBDA_ACCESS_KEY}");
 
         local config = {
             "iss"         : ISS,
@@ -44,7 +44,7 @@ class GooglePubSubJWTAuth extends ImpTestCase {
         auth = OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
     }
 
-    function checkToken(token, success, failure, doRefresh = false) {
+    function verifyToken(token, success, failure, doRefresh = false) {
         try {
             server.log("VerifyTokenTest: checking token");
             local query = http.urlencode({"access_token" : token });
@@ -66,7 +66,7 @@ class GooglePubSubJWTAuth extends ImpTestCase {
                                     failure(err);
                                 } else {
                                     server.log("VerifyTokenTest_refresh: going to check token");
-                                    checkToken(token, success, failure);
+                                    verifyToken(token, success, failure);
                                 }
                             }.bindenv(this));
                             if (null != res) failure(res);
@@ -80,7 +80,7 @@ class GooglePubSubJWTAuth extends ImpTestCase {
         }
     }
 
-    function testRunCommandAsynchronously() {
+    function testAcquireAndVerifyToken() {
         return Promise(function (success, failure) {
 
             local token = auth.getValidAccessTokeOrNull();
@@ -95,7 +95,7 @@ class GooglePubSubJWTAuth extends ImpTestCase {
                         failure(err);
                     } else {
                         server.log("VerifyTokenTest: going to check token");
-                        checkToken(token, success, failure, true);
+                        verifyToken(token, success, failure, true);
                     }
                 }.bindenv(this));
             }

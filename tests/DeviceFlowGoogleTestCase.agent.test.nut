@@ -39,7 +39,7 @@ class DeviceFlowGoogleTestCase extends ImpTestCase {
         };
 
         auth = OAuth2.DeviceFlow.Client(OAuth2.DeviceFlow.GOOGLE, config);
-   }
+    }
 
 
     function checkToken(token, success, failure, doRefresh = false) {
