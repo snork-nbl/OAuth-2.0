@@ -22,5 +22,6 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
+@include "github:electricimp/AWSRequestV4/AWSRequestV4.class.nut"
 @include "github:electricimp/AWSLambda/AWSLambda.agent.lib.nut"
 @include "OAuth2.agent.lib.nut"

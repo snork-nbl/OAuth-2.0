@@ -5,7 +5,7 @@
     ],
     "agentFile": "tests/inc.agent.nut",
     "deviceFile": false,
-    "stopOnFailure": true,
+    "stopOnFailure": false,
     "timeout": 300,
     "tests": [
         "*.test.nut",
