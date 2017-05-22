@@ -597,7 +597,7 @@ class  OAuth2.JWTProfile {
         // Access token death time
         _expiresAt = 0;
 
-        // Instance of signer that supports RSA256
+        // Instance of signer that supports RS256
         // Should be AWSLambda until the function is embedded to agent library
         _signer = null;
 
@@ -614,7 +614,7 @@ class  OAuth2.JWTProfile {
         //                      iss         - JWT issuer
         //                      scope       - authorization scope
         //                      jwtSignKey  - JWT sign secret key
-        //                      rsa256signer- instance of AWSLambda with installed RSALambda function
+        //                      rs256signer - instance of AWSLambda with installed RSALambda function
         //                                    https://github.com/electricimp/AWSLambda/blob/master/examples/RSACrypto#setting-up-the-aim-user
         //                      sub         - [optional] the subject of the JWT
         constructor(provider, user) {
