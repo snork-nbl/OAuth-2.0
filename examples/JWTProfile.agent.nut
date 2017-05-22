@@ -35,10 +35,10 @@ const AWS_SECRET_ACCESS_KEY = "";
 local lambda = AWSLambda(AWS_LAMBDA_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
 
 local userConfig = {
-    "iss"     : GOOGLE_ISS,
+    "iss"         : GOOGLE_ISS,
     "jwtSignKey"  : GOOGLE_SECRET_KEY,
-    "scope"   : "https://www.googleapis.com/auth/pubsub",
-    "rs256signer": lambda
+    "scope"       : "https://www.googleapis.com/auth/pubsub",
+    "rs256signer" : lambda
 };
 
 // Initializing client with provided Google Firebase config
