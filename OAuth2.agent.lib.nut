@@ -44,6 +44,252 @@ class OAuth2 {
 }
 
 // The class that represents OAuth 2.0 authorization flow
+// with JSON Web Token.
+// https://tools.ietf.org/html/rfc7523
+class  OAuth2.JWTProfile {
+
+    Client = class {
+
+        // OAuth2 provider's token endpoint
+        _tokenHost = null;
+
+        // Issuer of the JWT
+        _iss = null;
+        // The scope of the access
+        // https://tools.ietf.org/html/rfc6749#section-3.3
+        _scope = null;
+        // Private key for JWT sign
+        _jwtSignKey = null;
+        // Subject of the JWT
+        _sub = null;
+
+        // Credentials used to access protected resources
+        _accessToken = null;
+        // Access token death time
+        _expiresAt = 0;
+
+        // Instance of signer that supports RS256
+        // Should be AWSLambda until the function is embedded to agent library
+        _signer = null;
+
+        // Debug mode, records non-error events
+        _debug = true;
+
+        // Client constructor.
+        // Parameters:
+        //      provider    OAuth2 provider configuration
+        //                  Must be a table with following set of strings:
+        //                      TOKEN_HOST  - provider's token endpoint URI
+        //      params      Client specific parameters
+        //                  Must be a table with following set of strings:
+        //                      iss         - JWT issuer
+        //                      scope       - authorization scope
+        //                      jwtSignKey  - JWT sign secret key
+        //                      rs256signer - instance of AWSLambda with installed RSALambda function
+        //                                    https://github.com/electricimp/AWSLambda/blob/master/examples/RSACrypto#setting-up-the-aim-user
+        //                      sub         - [optional] the subject of the JWT
+        constructor(provider, user) {
+             if (!("TOKEN_HOST" in provider) ) {
+                throw "Invalid Provider";
+            }
+            _tokenHost = provider.TOKEN_HOST;
+
+             if (!("iss" in user)    ||
+                 !("scope" in  user) ||
+                 !("jwtSignKey" in user) ||
+                 !("rs256signer" in user) ||
+                 !(typeof user.rs256signer != AWSLambda)) {
+                throw "Invalid user config";
+            }
+
+            _iss = user.iss;
+            // mandatory field but GOOGLE skips it
+            if ("sub" in user) _sub = user.sub;
+            else               _sub = _iss;
+
+            _scope = user.scope;
+            _jwtSignKey = user.jwtSignKey;
+            _signer = user.rs256signer;
+        }
+
+        // Returns access token string nonblocking way.
+        // Returns:
+        //      Access token as string object
+        //      Null if the client is not authorized or token is expired
+        function getValidAccessTokeOrNull() {
+            if (isTokenValid()) {
+                return _accessToken;
+            } else {
+                return null;
+            }
+        }
+
+        // Checks if access token is valid
+        function isTokenValid() {
+            return date().time < _expiresAt;
+        }
+
+        // Starts access token acquisition procedure.
+        //
+        // Parameters:
+        //          tokenReadyCallback  - The handler to be called when access token is acquired
+        //                                or error is observed. The handle's signature:
+        //                                  tokenReadyCallback(token, error), where
+        //                                      token   - access token string
+        //                                      error   - error description string
+        //
+        // Returns: Nothing
+        //
+        function acquireAccessToken(tokenReadyCallback) {
+            if (isTokenValid()) {
+                tokenReadyCallback(_accessToken, null);
+                return;
+            }
+
+            local header = _urlsafe(http.base64encode("{\"alg\":\"RS256\",\"typ\":\"JWT\"}"));
+            local claimset = {
+                "iss"   : _iss,
+                "scope" : _scope,
+                "sub"   : _sub,
+                "aud"   : _tokenHost,
+                "exp"   : (time() + OAUTH2_TOKEN_DEFAULT_TTL),
+                "iat"   : time()
+            };
+            local body = _urlsafe(http.base64encode(http.jsonencode(claimset)));
+
+            local context = {
+                "header"        : header,
+                "body"          : body,
+                "client"        : this,
+                "userCallback"  : tokenReadyCallback
+            };
+
+            // Make the signing request for Lambda
+            local signrequest = {
+                "privatekey" : _jwtSignKey,
+                "message"    : header + "." + body
+            };
+
+            _log("Calling lambda:" + signrequest);
+            _signer.invoke({
+                "payload" : signrequest,
+                "functionName" : "RSALambda"
+            }, _doSignerResponse.bindenv(context));
+        }
+
+        // -------------------- PRIVATE METHODS -------------------- //
+
+        // Processes the response from AWSLambda signer
+        // Parameters:
+        //          result  - httpresponse instance
+        //
+        // Returns: Nothing
+        function _doSignerResponse(result) {
+            if (result.statuscode == 200) {
+                local payload = http.jsondecode(result.body);
+                if ("errorMessage" in payload) {
+                    client._error(payload.errorMessage);
+                } else {
+                    // We got the signature, build the OAuth request
+                    local signature = client._urlsafe(payload.signature);
+                    local oauthreq = http.urlencode({
+                        "grant_type" : OAUTH2_JWT_GRANT_TYPE,
+                        "assertion"  : (header+"."+body+"."+signature)
+                    });
+
+                    // Post, get the token
+                    local request = http.post(client._tokenHost, {}, oauthreq);
+                    client._log("Calling token host");
+                    request.sendasync(client._doTokenCallback.bindenv(this));
+                }
+            } else {
+                // Work around the curl 56 by immediately retrying
+                if (result.statuscode == 56) {
+                    client._log("Retrying due to 56");
+                    client.acquireAccessToken(userCallback);
+                } else {
+                    local mess = "Lambda returned code "+result.statuscode;
+                    client._error(mess);
+                    userCallback(null, mess);
+                }
+            }
+        }
+
+        // Processes response from OAuth provider
+        // Parameters:
+        //          resp  - httpresponse instance
+        //
+        // Returns: Nothing
+        function _doTokenCallback(resp) {
+            if (resp.statuscode == 200) {
+                // Cache the new token, pull in the expiry a little just in case
+                local response = http.jsondecode(resp.body);
+                local err = client._extractToken(response);
+                userCallback(client._accessToken, err);
+            } else {
+                // Error getting token
+                local mess = "Error getting token: " + resp.statuscode + " " + resp.body;
+                client._error(mess);
+                userCallback(null, mess);
+            }
+        }
+
+        // Extracts data from  token request response
+        // Parameters:
+        //      respData    - a table parsed from http response body
+        //
+        // Returns:
+        //      error description if the table doesn't contain required keys,
+        //      Null otherwise
+        function _extractToken(respData) {
+            if (!("access_token"  in respData)) {
+                    return "Response doesn't contain all required data";
+            }
+
+            _accessToken     = respData.access_token;
+
+            if ("expires_in" in respData) {
+                _expiresAt       = respData.expires_in + date().time;
+            } else {
+                _expiresAt       = OAUTH2_TOKEN_DEFAULT_TTL + date().time;
+            }
+
+            return null;
+        }
+
+
+        // Make already base64 encoded string URL safe
+        function _urlsafe(s) {
+            // Replace "+" with "-" and "/" with "_"
+            while(1) {
+                local p = s.find("+");
+                if (p == null) break;
+                s = s.slice(0,p) + "-" + s.slice(p+1);
+            }
+            while(1) {
+                local p = s.find("/");
+                if (p == null) break;
+                s = s.slice(0,p) + "_" + s.slice(p+1);
+            }
+            return s;
+        }
+
+        // Records non-error event
+        function _log(message) {
+            if (_debug) {
+                server.log("[OAuth2JWTProfile]" + message);
+            }
+        }
+
+        // Records error event
+        function _error(message) {
+            server.error("[OAuth2JWTProfile]" + message);
+        }
+
+    }
+}
+
+// The class that represents OAuth 2.0 authorization flow
 // for browserless and input constrained devices.
 // https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05
 class OAuth2.DeviceFlow {
@@ -570,250 +816,4 @@ class OAuth2.DeviceFlow {
             if (_debug) server.log(txt);
         }
     } // end of Client
-}
-
-// The class that represents OAuth 2.0 authorization flow
-// with JSON Web Token.
-// https://tools.ietf.org/html/rfc7523
-class  OAuth2.JWTProfile {
-
-    Client = class {
-
-        // OAuth2 provider's token endpoint
-        _tokenHost = null;
-
-        // Issuer of the JWT
-        _iss = null;
-        // The scope of the access
-        // https://tools.ietf.org/html/rfc6749#section-3.3
-        _scope = null;
-        // Private key for JWT sign
-        _jwtSignKey = null;
-        // Subject of the JWT
-        _sub = null;
-
-        // Credentials used to access protected resources
-        _accessToken = null;
-        // Access token death time
-        _expiresAt = 0;
-
-        // Instance of signer that supports RS256
-        // Should be AWSLambda until the function is embedded to agent library
-        _signer = null;
-
-        // Debug mode, records non-error events
-        _debug = true;
-
-        // Client constructor.
-        // Parameters:
-        //      provider    OAuth2 provider configuration
-        //                  Must be a table with following set of strings:
-        //                      TOKEN_HOST  - provider's token endpoint URI
-        //      params      Client specific parameters
-        //                  Must be a table with following set of strings:
-        //                      iss         - JWT issuer
-        //                      scope       - authorization scope
-        //                      jwtSignKey  - JWT sign secret key
-        //                      rs256signer - instance of AWSLambda with installed RSALambda function
-        //                                    https://github.com/electricimp/AWSLambda/blob/master/examples/RSACrypto#setting-up-the-aim-user
-        //                      sub         - [optional] the subject of the JWT
-        constructor(provider, user) {
-             if (!("TOKEN_HOST" in provider) ) {
-                throw "Invalid Provider";
-            }
-            _tokenHost = provider.TOKEN_HOST;
-
-             if (!("iss" in user)    ||
-                 !("scope" in  user) ||
-                 !("jwtSignKey" in user) ||
-                 !("rs256signer" in user) ||
-                 !(typeof user.rs256signer != AWSLambda)) {
-                throw "Invalid user config";
-            }
-
-            _iss = user.iss;
-            // mandatory field but GOOGLE skips it
-            if ("sub" in user) _sub = user.sub;
-            else               _sub = _iss;
-
-            _scope = user.scope;
-            _jwtSignKey = user.jwtSignKey;
-            _signer = user.rs256signer;
-        }
-
-        // Returns access token string nonblocking way.
-        // Returns:
-        //      Access token as string object
-        //      Null if the client is not authorized or token is expired
-        function getValidAccessTokeOrNull() {
-            if (isTokenValid()) {
-                return _accessToken;
-            } else {
-                return null;
-            }
-        }
-
-        // Checks if access token is valid
-        function isTokenValid() {
-            return date().time < _expiresAt;
-        }
-
-        // Starts access token acquisition procedure.
-        //
-        // Parameters:
-        //          tokenReadyCallback  - The handler to be called when access token is acquired
-        //                                or error is observed. The handle's signature:
-        //                                  tokenReadyCallback(token, error), where
-        //                                      token   - access token string
-        //                                      error   - error description string
-        //
-        // Returns: Nothing
-        //
-        function acquireAccessToken(tokenReadyCallback) {
-            if (isTokenValid()) {
-                tokenReadyCallback(_accessToken, null);
-                return;
-            }
-
-            local header = _urlsafe(http.base64encode("{\"alg\":\"RS256\",\"typ\":\"JWT\"}"));
-            local claimset = {
-                "iss"   : _iss,
-                "scope" : _scope,
-                "sub"   : _sub,
-                "aud"   : _tokenHost,
-                "exp"   : (time() + OAUTH2_TOKEN_DEFAULT_TTL),
-                "iat"   : time()
-            };
-            local body = _urlsafe(http.base64encode(http.jsonencode(claimset)));
-
-            local context = {
-                "header"        : header,
-                "body"          : body,
-                "client"        : this,
-                "userCallback"  : tokenReadyCallback
-            };
-
-            // Make the signing request for Lambda
-            local signrequest = {
-                "privatekey" : _jwtSignKey,
-                "message"    : header + "." + body
-            };
-
-            _log("Calling lambda:" + signrequest);
-            _signer.invoke({
-                "payload" : signrequest,
-                "functionName" : "RSALambda"
-            }, _doSignerResponse.bindenv(context));
-        }
-
-        // -------------------- PRIVATE METHODS -------------------- //
-
-        // Processes the response from AWSLambda signer
-        // Parameters:
-        //          result  - httpresponse instance
-        //
-        // Returns: Nothing
-        function _doSignerResponse(result) {
-            if (result.statuscode == 200) {
-                local payload = http.jsondecode(result.body);
-                if ("errorMessage" in payload) {
-                    client._error(payload.errorMessage);
-                } else {
-                    // We got the signature, build the OAuth request
-                    local signature = client._urlsafe(payload.signature);
-                    local oauthreq = http.urlencode({
-                        "grant_type" : OAUTH2_JWT_GRANT_TYPE,
-                        "assertion"  : (header+"."+body+"."+signature)
-                    });
-
-                    // Post, get the token
-                    local request = http.post(client._tokenHost, {}, oauthreq);
-                    client._log("Calling token host");
-                    request.sendasync(client._doTokenCallback.bindenv(this));
-                }
-            } else {
-                // Work around the curl 56 by immediately retrying
-                if (result.statuscode == 56) {
-                    client._log("Retrying due to 56");
-                    client.acquireAccessToken(userCallback);
-                } else {
-                    local mess = "Lambda returned code "+result.statuscode;
-                    client._error(mess);
-                    userCallback(null, mess);
-                }
-            }
-        }
-
-        // Processes response from OAuth provider
-        // Parameters:
-        //          resp  - httpresponse instance
-        //
-        // Returns: Nothing
-        function _doTokenCallback(resp) {
-            if (resp.statuscode == 200) {
-                // Cache the new token, pull in the expiry a little just in case
-                local response = http.jsondecode(resp.body);
-                local err = client._extractToken(response);
-                userCallback(client._accessToken, err);
-            } else {
-                // Error getting token
-                local mess = "Error getting token: " + resp.statuscode + " " + resp.body;
-                client._error(mess);
-                userCallback(null, mess);
-            }
-        }
-
-        // Extracts data from  token request response
-        // Parameters:
-        //      respData    - a table parsed from http response body
-        //
-        // Returns:
-        //      error description if the table doesn't contain required keys,
-        //      Null otherwise
-        function _extractToken(respData) {
-            if (!("access_token"  in respData)) {
-                    return "Response doesn't contain all required data";
-            }
-
-            _accessToken     = respData.access_token;
-
-            if ("expires_in" in respData) {
-                _expiresAt       = respData.expires_in + date().time;
-            } else {
-                _expiresAt       = OAUTH2_TOKEN_DEFAULT_TTL + date().time;
-            }
-
-            return null;
-        }
-
-
-        // Make already base64 encoded string URL safe
-        function _urlsafe(s) {
-            // Replace "+" with "-" and "/" with "_"
-            while(1) {
-                local p = s.find("+");
-                if (p == null) break;
-                s = s.slice(0,p) + "-" + s.slice(p+1);
-            }
-            while(1) {
-                local p = s.find("/");
-                if (p == null) break;
-                s = s.slice(0,p) + "_" + s.slice(p+1);
-            }
-            return s;
-        }
-
-        // Records non-error event
-        function _log(message) {
-            if (_debug) {
-                server.log("[OAuth2JWTProfile]" + message);
-            }
-        }
-
-        // Records error event
-        function _error(message) {
-            server.error("[OAuth2JWTProfile]" + message);
-        }
-
-    }
 }
