@@ -12,7 +12,7 @@ Basic functionality consists of following actions:
 The Client is tested and verified on the Google 
 [Firebase](https://firebase.google.com) authorization flow.
 
-**To add this library to your project, add** `#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0"` **to the top of your agent code**
+**To add this library to your project, add** `#require "OAuth2.agent.lib.nut:1.0.0"` **to the top of your agent code**
 
 
 ## OAuth2.DeviceFlow.Client public methods
@@ -174,7 +174,7 @@ client.refreshAccessToken(
 To connect all the parts together and show a sample of common case of library usage let's take a look a following sample
 
 ```squirrel
-#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0
+#require "OAuth2.agent.lib.nut:1.0.0
 
 // Fill CLIENT_ID and CLIENT_SECRET with correct values
 local userConfig = {

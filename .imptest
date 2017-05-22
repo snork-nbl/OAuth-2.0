@@ -3,7 +3,7 @@
     "devices": [
         "23d8caacc17e10ee" /* rlyeh */
     ],
-    "agentFile": "OAuth2.DeviceFlow.agent.lib.nut",
+    "agentFile": "OAuth2.agent.lib.nut",
     "deviceFile": false,
     "stopOnFailure": true,
     "timeout": 300,
