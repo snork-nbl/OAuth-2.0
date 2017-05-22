@@ -22,20 +22,27 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "OAuth2.DeviceFlow.agent.lib.nut:1.0.0"
+#require "AWSRequestV4.class.nut:1.0.2"
+#require "AWSLambda.agent.lib.nut:1.0.0"
+//@include "../OAuth2.agent.lib.nut"
+#require "OAuth2.agent.lib.nut:1.0.0"
 
-const CLIENT_ID = "";
-const CLIENT_SECRET = "";
+const GOOGLE_ISS = "";
+const GOOGLE_SECRET_KEY = "";
+const AWS_LAMBDA_REGION = "";
+const AWS_ACCESS_KEY_ID = "";
+const AWS_SECRET_ACCESS_KEY = "";
+local lambda = AWSLambda(AWS_LAMBDA_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
 
-// Fill CLIENT_ID and CLIENT_SECRET with correct values
-local userConfig = {
-    "clientId"     : CLIENT_ID,
-    "clientSecret" : CLIENT_SECRET,
-    "scope"        : "email profile",
+local config = {
+    "iss"         : GOOGLE_ISS,
+    "jwtSignKey"  : GOOGLE_SECRET_KEY,
+    "scope"       : "https://www.googleapis.com/auth/pubsub",
+    "rs256signer" : lambda
 };
 
 // Initializing client with provided Google Firebase config
-client <- OAuth2.DeviceFlow.Client(OAuth2.DeviceFlow.GOOGLE, userConfig);
+client <- OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
 
 local token = client.getValidAccessTokeOrNull();
 if (token != null) {
@@ -49,11 +56,6 @@ if (token != null) {
             } else {
                 server.log("Received token: " + resp);
             }
-        },
-        function(url, code) {
-            server.log("Authorization is pending. Please grant access.");
-            server.log("URL: " + url);
-            server.log("CODE: " + code);
         }
     );
 
