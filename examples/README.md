@@ -37,7 +37,7 @@ it should be treated carefully, and not checked into version control!
 
 ## OAuth2 JTW Profile example
 
-### Setup Amazon Lambda to support RSA256 signature
+### Setup Amazon Lambda to support RS256 signature
 
 Electric Imp agent framework doesn't support `SHA256withRSA` (also known as `RS256`) signature algorithm required for JTW signing. This sections shows how to create a Lambda that will do RSA-SHA256 signatures for an agent.
 
