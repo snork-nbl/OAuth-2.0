@@ -28,18 +28,18 @@ class VerifyTokenTestCase extends ImpTestCase {
 
     auth = null;
 
-    ISS = "#{env:_ISS_}";
-    SECRET_KEY = "#{env:_SECRET_KEY_}";
+    static ISS = "#{env:_ISS_}";
+    static SECRET_KEY = "#{env:_SECRET_KEY_}";
 
     function setUp() {
 
         local lambda = AWSLambda("#{env:LAMBDA_REGION}", "#{env:LAMBDA_ID}", "#{env:LAMBDA_KEY}");
 
         local config = {
-            "iss"     : ISS,
+            "iss"         : ISS,
             "jwtSignKey"  : SECRET_KEY,
-            "scope"   : "https://www.googleapis.com/auth/pubsub",
-            "rs256signer": lambda
+            "scope"       : "https://www.googleapis.com/auth/pubsub",
+            "rs256signer" : lambda
         };
 
         auth = OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);

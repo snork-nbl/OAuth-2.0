@@ -28,14 +28,14 @@ class VerifyTokenTestCase extends ImpTestCase {
 
     auth = null;
 
-    ID = "#{env:CLIENT_ID}";
-    SECRET = "#{env:CLIENT_SECRET}";
+    static ID = "#{env:CLIENT_ID}";
+    static SECRET = "#{env:CLIENT_SECRET}";
 
     function setUp() {
         local config = {
-            "clientId": ID,
+            "clientId"     : ID,
             "clientSecret" : SECRET,
-            "scope" : "email",
+            "scope"        : "email",
         };
 
         auth = OAuth2.DeviceFlow.Client(OAuth2.DeviceFlow.GOOGLE, config);

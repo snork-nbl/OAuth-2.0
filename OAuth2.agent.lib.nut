@@ -678,10 +678,14 @@ class  OAuth2.JWTProfile {
             }
 
             local header = _urlsafe(http.base64encode("{\"alg\":\"RS256\",\"typ\":\"JWT\"}"));
-            local claimset = { "iss":_iss, "scope":_scope,
-                            "sub": _sub,
-                            "aud":_tokenHost,
-                            "exp":(time()+OAUTH2_TOKEN_DEFAULT_TTL), "iat":(time()) };
+            local claimset = {
+                "iss"   : _iss,
+                "scope" : _scope,
+                "sub"   : _sub,
+                "aud"   : _tokenHost,
+                "exp"   : (time() + OAUTH2_TOKEN_DEFAULT_TTL),
+                "iat"   : time()
+            };
             local body = _urlsafe(http.base64encode(http.jsonencode(claimset)));
 
             local context = {
@@ -692,10 +696,16 @@ class  OAuth2.JWTProfile {
             };
 
             // Make the signing request for Lambda
-            local signrequest = { "privatekey": _jwtSignKey, "message": header+"."+body };
+            local signrequest = {
+                "privatekey" : _jwtSignKey,
+                "message"    : header + "." + body
+            };
 
             _log("Calling lambda:" + signrequest);
-            _signer.invoke( {"payload":signrequest, "functionName":"RSALambda"} , _doSignerResponse.bindenv(context));
+            _signer.invoke({
+                "payload" : signrequest,
+                "functionName" : "RSALambda"
+            }, _doSignerResponse.bindenv(context));
         }
 
         // -------------------- PRIVATE METHODS -------------------- //
