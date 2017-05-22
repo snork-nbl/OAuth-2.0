@@ -24,23 +24,25 @@
 
 const TOKEN_VERIFICATION_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo";
 
-class VerifyTokenTestCase extends ImpTestCase {
+class GooglePubSubJWTAuth extends ImpTestCase {
 
     auth = null;
 
-    static ID = "#{env:CLIENT_ID}";
-    static SECRET = "#{env:CLIENT_SECRET}";
+    static ISS = "#{env:_ISS_}";
+    static SECRET_KEY = "#{env:_SECRET_KEY_}";
 
     function setUp() {
+        local lambda = AWSLambda("#{env:LAMBDA_REGION}", "#{env:LAMBDA_ID}", "#{env:LAMBDA_KEY}");
+
         local config = {
-            "clientId"     : ID,
-            "clientSecret" : SECRET,
-            "scope"        : "email",
+            "iss"         : ISS,
+            "jwtSignKey"  : SECRET_KEY,
+            "scope"       : "https://www.googleapis.com/auth/pubsub",
+            "rs256signer" : lambda
         };
 
-        auth = OAuth2.DeviceFlow.Client(OAuth2.DeviceFlow.GOOGLE, config);
-   }
-
+        auth = OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
+    }
 
     function checkToken(token, success, failure, doRefresh = false) {
         try {
@@ -78,26 +80,13 @@ class VerifyTokenTestCase extends ImpTestCase {
         }
     }
 
-    function grantAccess(url, code, success, failure) {
-        //TODO: goto url, parse html and  post the code
-        //works as partially manual test now, fully automated scenario looks too fragile
-        info("Need user action at " + url + " with code " + code);
-        if ("#{env:OS}" == "Windows_NT") {
-            // windows
-            this.runCommand("start " + url);
-        } else {
-            // osx, linux is not supported
-            this.runCommand("open " + url);
-        }
-    }
-
     function testRunCommandAsynchronously() {
         return Promise(function (success, failure) {
 
             local token = auth.getValidAccessTokeOrNull();
             if (null != token) {
                 server.log("VerifyTokenTest: it was not null!. something went wrong!");
-                checkToken(token, success, failure);
+                failure("Initial token is not null");
             } else {
                 local err = auth.acquireAccessToken(function(token, err){
                     server.log("VerifyTokenTest: callback involved");
@@ -108,10 +97,7 @@ class VerifyTokenTestCase extends ImpTestCase {
                         server.log("VerifyTokenTest: going to check token");
                         checkToken(token, success, failure, true);
                     }
-                }.bindenv(this), function(url, code) {
-                    grantAccess(url, code, success, failure);
                 }.bindenv(this));
-                if (null != err) failure(err);
             }
         }.bindenv(this));
     }
