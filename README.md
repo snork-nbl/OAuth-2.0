@@ -4,7 +4,7 @@ This library implements following OAuth 2.0 variations:
 - OAuth 2.0 with JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants
  defined in the [IETF RFC 7523](https://tools.ietf.org/html/rfc7523).
 - Device Flow for browserless and input constrained devices. The implementation conforms 
-to the [draft](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05) specification.
+to the [draft specification](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05).
 
 The library exposes access token for applications and hides provider specific 
 operations including refresh token management and expired access token renewal.
