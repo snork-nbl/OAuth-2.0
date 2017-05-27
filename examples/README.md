@@ -9,7 +9,7 @@ This demo examples acquiring of OAuth access token from Google [OAuth service](h
 
 ### Setup Amazon Lambda to support RS256 signature
 
-The Electric Impl OAuth library temporary [required](../README.md#oauth2jwtprofileclient) external service to sign JSON Web Token by `SHA256withRSA` (also known as `RS256`) signature algorithm. This sections shows how to create a [AWS Lambda](https://aws.amazon.com/lambda) that will do RSA-SHA256 signatures for an agent.
+The Electric Impl OAuth library temporary [requires](../README.md#oauth2jwtprofileclient) external service to sign JSON Web Token by `SHA256withRSA` (also known as `RS256`) signature algorithm. This sections shows how to create a [AWS Lambda](https://aws.amazon.com/lambda) that will do RSA-SHA256 signatures for an agent.
 
 **NOTE**: An Amazon Web Services (AWS) account is required to run AWS Lambda. The account must be verified, ie. billing information entered and accepted. Account verification may take up to 12 hours, and no service is available prior to verification.
 
@@ -33,7 +33,7 @@ The Electric Impl OAuth library temporary [required](../README.md#oauth2jwtprofi
 1. On the Lambda page copy and copy down Lambda's **ARN**. It can be found at the top right corner
 of the page and should look like: `arn:aws:lambda:us-west-1:123456789101:function:RSALambda`
 1. Copy down the Lambda region. It can be found on the top right corner of the page,
-and is a next item to the right of the link with the user name (e.g. "us-east-1")
+and is a next item to the right of the link with the user name (e.g. "us-east-1"). It is used for `AWS_LAMBDA_REGION` constant in the example.
 
 **IMPORTANT:** The name of the AWS Lambda function must be `RSALambda`!
 
@@ -67,7 +67,7 @@ and is a next item to the right of the link with the user name (e.g. "us-east-1"
 1. Check `allow-calling-RSALambda` from the list of policies
 1. Press `Next: Review`
 1. Press `Create user`
-1. Copy down your `Access key ID` and `Secret access key`
+1. Copy down your `Access key ID` and `Secret access key`. They are used for `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` constants respectively in the example code.
 
 ### Setup Google OAuth2 for Service Accounts
 
