@@ -2,9 +2,9 @@
 
 OAuth 2.0 authentication and authorization flows implementation. The library supports 
 the following flows:
-- [OAuth 2.0 with JSON Web Token (JWT)](#oauth2jwtprofileclient) Profile for Client Authentication and Authorization Grants
+- [OAuth2.JWTProfile.Client](#oauth2jwtprofileclient) &mdash; OAuth 2.0 with JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants
  defined in the [IETF RFC 7523](https://tools.ietf.org/html/rfc7523).
-- [Device Flow](#oauth2deviceflowclient) for browserless and input constrained devices. The implementation conforms 
+- [OAuth2.DeviceFlow.Client](#oauth2deviceflowclient) &mdash; Device Flow for browserless and input constrained devices. The implementation conforms 
 to the [draft specification](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05).
 
 The library exposes access token for applications and hides provider specific 
