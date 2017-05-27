@@ -9,7 +9,7 @@ This demo examples acquiring of OAuth access token from Google [OAuth service](h
 
 ### Setup Amazon Lambda to support RS256 signature
 
-The Electric Impl OAuth library temporary [required](..#oauth2jwtprofileclient) external service to sign JSON Web Token by `SHA256withRSA` (also known as `RS256`) signature algorithm. This sections shows how to create a [AWS Lambda](https://aws.amazon.com/lambda) that will do RSA-SHA256 signatures for an agent.
+The Electric Impl OAuth library temporary [required](../README.md#oauth2jwtprofileclient) external service to sign JSON Web Token by `SHA256withRSA` (also known as `RS256`) signature algorithm. This sections shows how to create a [AWS Lambda](https://aws.amazon.com/lambda) that will do RSA-SHA256 signatures for an agent.
 
 **NOTE**: An Amazon Web Services (AWS) account is required to run AWS Lambda. The account must be verified, ie. billing information entered and accepted. Account verification may take up to 12 hours, and no service is available prior to verification.
 
