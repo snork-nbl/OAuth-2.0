@@ -20,7 +20,7 @@ an access token as well as for client authentication.
 **NOTE:** The flow requires RSA SHA256 signature, which is not currently supported by the Electric Imp
 [Agent API](https://electricimp.com/docs/api/agent/). As a temporary solution it is proposed to use
 [AWS Lambda](https://aws.amazon.com/lambda) function that will do
-[RSA-SHA256 signatures](https://github.com/electricimp/AWSLambda/tree/master/examples/RSACrypto) for an agent.
+[RSA-SHA256 signatures](examples#setup-amazon-lambda-to-support-rs256-signature) for an agent. The use of Amazon service may be subject to charge additional money.
 
 ### constructor(providerSettings, userSettings)
 
@@ -39,15 +39,10 @@ The second parameter `userSettings` defines a map with user and application spec
 | `iss` | *string* | Required | JWT issuer |
 | `scope` | *string* | Required | Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
 | `jwtSignKey` | *string* | Required | JWT sign secret key |
-| `rs256signer` | *[AWSLambda](https://github.com/electricimp/awslambda)* | Required | Instance of [AWSLambda](https://github.com/electricimp/awslambda) for RSA-SHA256 encryption. You can use [example](https://github.com/electricimp/AWSLambda/tree/master/examples/RSACrypto) code to create the AWS Lambda function. |
+| `rs256signer` | *[AWSLambda](https://github.com/electricimp/awslambda)* | Required | Instance of [AWSLambda](https://github.com/electricimp/awslambda) for RSA-SHA256 encryption. You can use [example](examples#jwt-profile-for-oauth-20) code to create the AWS Lambda function. |
 | `sub` | *string* | Optional. *Default:* the value of `iss` | The *subject* of the JWT. Google seems to ignor this field. |
 
-*Note* Optional `pub` property is substituted by mandatory `iss` property when omitted.
-
-For complete description of AWSLambda setup procedure look at [example](
-examples#setup-amazon-lambda-to-support-rs256-signature).
-
-Please refer to the [example](examples#jwt-profile-for-oauth-20) for more details on how to setup [AWS Lambda](https://aws.amazon.com/lambda).
+*Note* Optional `sub` property is substituted by mandatory `iss` property when omitted.
 
 
 #### JWT Profile Client Creation Example
@@ -59,6 +54,13 @@ Please refer to the [example](examples#jwt-profile-for-oauth-20) for more detail
 
 // OAuth 2.0 library
 #require "OAuth2.agent.lib.nut:1.0.0"
+
+// Substitute with real values
+const LAMBDA_REGION = "";
+const LAMBDA_ACCESS_KEY_ID = "";
+const LAMBDA_ACCESS_KEY = "";
+const GOOGLE_ISS = "";
+const GOOGLE_SECRET_KEY = "";
 
 // Create AWS Lambda Instance
 local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
@@ -97,7 +99,7 @@ Parameter details:
 
 #### Example
 
-Using `client` from previous [sample](#JWTProfileClientCreationExample)
+Using `client` from previous [sample](#jwt-profile-client-creation-example)
 
 ```squirrel
 client.acquireAccessToken(
@@ -116,7 +118,7 @@ null if the client is not authorized or token is expired.
 
 #### Example
 
-Using `client` from the first [sample](#JWTProfileClientCreationExample)
+Using `client` from the first [sample](#jwt-profile-client-creation-example)
 
 ```squirrel
 local token = client.getValidAccessTokeOrNull();
@@ -130,7 +132,7 @@ Checks if access token is valid by comparing its expire time with current one.
 
 #### Example
 
-Using `client` from the first sample
+Using `client` from the first [sample](#jwt-profile-client-creation-example)
 
 ```squirrel
 server.log("token is valid=" + client.isTokenValid());
@@ -144,6 +146,14 @@ To connect all the parts together and show a sample of common case of library us
 #require "AWSRequestV4.class.nut:1.0.2"
 #require "AWSLambda.agent.lib.nut:1.0.0"
 #require "OAuth2.agent.lib.nut:1.0.0
+
+// Substitute with real values
+const LAMBDA_REGION = "";
+const LAMBDA_ACCESS_KEY_ID = "";
+const LAMBDA_ACCESS_KEY = "";
+const GOOGLE_ISS = "";
+const GOOGLE_SECRET_KEY = "";
+
 
 local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
@@ -239,7 +249,7 @@ provides `LOGIN_HOST`, `TOKEN_HOST` and `GRANT_TYPE` values.
 ### acquireAccessToken(tokenReadyCallback, notifyUserCallback, force)
 
 Starts access token acquisition procedure. Depending on Client state may starts full client authorization procedure or
-just token refreshing. Returns null in case of success and error otherwise.
+just token refreshing. Returns null in case of success and error otherwise. Access token is delivered through provided *tokenReadyCallback* function.
 
 Parameter details:
 
@@ -266,7 +276,7 @@ Parameter details:
 
 #### Example
 
-Using `client` from previous [sample](#DeviceFlowClientCreationExample)
+Using `client` from previous [sample](#device-flow-client-creation-example)
 
 ```squirrel
 client.acquireAccessToken(
@@ -289,7 +299,7 @@ Returns access token string non blocking way. Returns access token as a string o
 
 #### Example
 
-Using `client` from the first sample
+Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
 local token = client.getValidAccessTokeOrNull();
@@ -303,7 +313,7 @@ Checks if access token is valid.
 
 #### Example
 
-Using `client` from the first sample
+Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
 server.log("token is valid=" + client.isTokenValid());
@@ -313,7 +323,7 @@ server.log("token is valid=" + client.isTokenValid());
 
 Checks if the client is authorized and able to refresh expired access token.
 
-Using `client` from the first sample
+Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
 server.log("client is authorized=" + client.isAuthorized());
@@ -333,7 +343,7 @@ Refreshes access token non blocking way, will invoke `tokenReadyCallback` in cas
 
 #### Example
 
-Using `client` from the first [sample](#DeviceFlowClientCreationExample)
+Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
 client.refreshAccessToken(
