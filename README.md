@@ -9,9 +9,10 @@ to the [draft specification](https://tools.ietf.org/html/draft-ietf-oauth-device
 The library exposes access token for applications and hides provider specific 
 operations including refresh token management and expired access token renewal.
 
-The DeviceFlow Client is tested and verified on the Google
-[Firebase](https://firebase.google.com) authorization flow, 
-JWT Profile - on the Google [PubSub](https://cloud.google.com/pubsub/docs/) service.
+**Supported Flows**:
+
+- [JWT for OAuth 2.0](#oauth2_jwtprofile_client)
+- [Device Flow](#oauth2_deviceflow_client)
 
 **To add this library to your project, add** `#require "OAuth2.agent.lib.nut:1.0.0"` **to the top of your agent code.**
 
@@ -167,6 +168,10 @@ if (token != null) {
     if (null != error) server.error("Failed to obtain token: " + error);
 }
 ```
+
+**NOTE:** JWT Profile for OAuth 2.0 was verified and tested with
+Google [PubSub](https://cloud.google.com/pubsub/docs/) authorization flow.
+
 
 ## OAuth2.DeviceFlow.Client
 
@@ -372,6 +377,10 @@ if (token != null) {
     if (null != error) server.error("Failed to obtain token: " + error);
 }
 ```
+
+**NOTE:** The DeviceFlow Client was verified and tested on the Google [Firebase](https://firebase.google.com)
+ authorization flow.
+
 
 # License
 
