@@ -1,9 +1,9 @@
 # Demo Instructions
 
-* [JTW Profile for OAuth 2.0](#jwt_profile_for_oauth_20)
+* [JWT Profile for OAuth 2.0](#jwt_profile_for_oauth_20)
 * [OAuth 2.0 Device Flow](#oauth2_20_device_flow)
 
-## JTW Profile for OAuth 2.0
+## JWT Profile for OAuth 2.0
 
 ### Setup Amazon Lambda to support RS256 signature
 
