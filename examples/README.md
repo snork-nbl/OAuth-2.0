@@ -32,6 +32,7 @@ of the page and should look like: `arn:aws:lambda:us-west-1:123456789101:functio
 1. Copy down the Lambda region. It can be found on the top right corner of the page,
 and is a next item to the right of the link with the user name (e.g. "us-east-1")
 
+**IMPORTANT:** The name of the AWS Lambda function must be `RSALambda`!
 
 #### Setting up AIM Policy
 

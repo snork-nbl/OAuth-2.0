@@ -17,71 +17,83 @@ operations including refresh token management and expired access token renewal.
 The class implements OAuth 2.0 flow with JSON Web Token (JWT) Bearer Token as a means for requesting 
 an access token as well as for client authentication.
 
+**NOTE:** The flow requires RSA SHA256 signature, which is not currently supported by the Electric Imp
+[Agent API](https://electricimp.com/docs/api/agent/). As a temporary solution it is proposed to use
+[AWS Lambda](https://aws.amazon.com/lambda) function that will do 
+[RSA-SHA256 signatures](https://github.com/electricimp/AWSLambda/tree/master/examples/RSACrypto) for an agent.
+
 ### constructor(providerSettings, userSettings)
 
 Construction that creates an instance of the OAuth2 JWTProfile Client.
 
 The first parameter `providerSettings` is a map that contains provider specific settings:
 
-| Parameter | Type | Default Value | Description |
+| Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| `TOKEN_HOST` | string | mandatory field | Token endpoint - used by the client to exchange an authorization grant for an access token, typically with client authentication. |
+| `TOKEN_HOST` | *string* | Required | Token endpoint - used by the client to exchange an authorization grant for an access token, typically with client authentication. |
 
 The second parameter `userSettings` defines a map with user and application specific settings:
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `iss` | string | JWT issuer |
-| `scope` | string | Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
-| `jwtSignKey` | string | JWT sign secret key |
-| `rs256signer` | AWSLambda | Instance of AWSLambda with installed RSALambda function |
-| `sub` | string, optional|  the subject of the JWT |
+| Parameter | Type | Use | Description |
+| --- | --- | --- | --- |
+| `iss` | *string* | Required | JWT issuer |
+| `scope` | *string* | Required | Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
+| `jwtSignKey` | *string* | Required | JWT sign secret key |
+| `rs256signer` | *[AWSLambda](https://github.com/electricimp/awslambda)* | Required | Instance of [AWSLambda](https://github.com/electricimp/awslambda) for RSA-SHA256 encryption. You can use [example](https://github.com/electricimp/AWSLambda/tree/master/examples/RSACrypto) code to create the AWS Lambda function. |
+| `sub` | *string* | Optional. *Default:* the value of `iss` | The *subject* of the JWT. Google seems to ignor this field. |
 
 *Note* Optional `pub` property is substituted by mandatory `iss` property when omitted.
 
 For complete description of AWSLambda setup procedure look at [example](
 examples#setup-amazon-lambda-to-support-rs256-signature).
 
-To use Google OAuth2 service as example please follow [this](examples#setup-google-oauth2-for-service-accounts) instruction.
+Please refer to the [example](examples#jwt-profile-for-oauth-20) for more details on how to setup [AWS Lambda](https://aws.amazon.com/lambda).
 
 
 #### Example
 
 ```squirrel
+// AWS Lambda libraries
+#require "AWSRequestV4.class.nut:1.0.2"
+#require "AWSLambda.agent.lib.nut:1.0.0"
 
-    signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
+// OAuth 2.0 library
+#require "OAuth2.agent.lib.nut:1.0.0"
 
-    providerSettings =  {
-        "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token"
-    };
-    userSettings = {
-        "iss"         : GOOGLE_ISS,
-        "jwtSignKey"  : GOOGLE_SECRET_KEY,
-        "scope"       : "https://www.googleapis.com/auth/pubsub",
-        "rs256signer" : signer
-    };
+// Create AWS Lambda Instance
+local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
-    client <- OAuth2.JWTProfile.Client(providerSettings, userSettings);
+local providerSettings =  {
+    "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token"
+};
+local userSettings = {
+    "iss"         : GOOGLE_ISS,
+    "jwtSignKey"  : GOOGLE_SECRET_KEY,
+    "scope"       : "https://www.googleapis.com/auth/pubsub",
+    "rs256signer" : signer
+};
+
+local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 ```
-*Note* The name of the AWS lambda function must be `RSALambda`
+**IMPORTANT:** The name of the AWS Lambda function must be `RSALambda`!
 
 ### acquireAccessToken(tokenReadyCallback)
 
-Starts access token acquisition procedure. May calls provided user callback function immediately if access token is present and valid.
+Starts access token acquisition procedure. Invokes the provided callback function immediately 
+if access token is available and valid.
 
 Parameter details:
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| *tokenReadyCallback* | Function | The handler to be called when access token is acquired or error is observed |
+| Parameter | Type | Use | Description |
+| --- | --- | --- | --- |
+| *tokenReadyCallback* | Function | Required | The handler to be called when access token is acquired or an error occurs |
 
-`tokenReadyCallback` parameters:
+`tokenReadyCallback` callback should have two parameters:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | token | String | String representation of access token |
 | error | Table | Table with  error details, `null` in case of success |
-
 
 #### Example
 
@@ -99,7 +111,8 @@ client.acquireAccessToken(
 ```
 ### getValidAccessTokeOrNull()
 
-Returns access token string non blocking way. Returns access token as a string object if token is valid, null if the client is not authorized or token is expired.
+Returns access token string non blocking way. Returns access token as a string object if token is valid, 
+null if the client is not authorized or token is expired.
 
 #### Example
 
