@@ -20,7 +20,7 @@ Electric Imp agent framework doesn't support `SHA256withRSA` (also known as `RS2
 1. Select `Configure function` item from the manu on the left and do the following
     1. Give function a name `RSALambda`
     1. Select runtime `Node.js 6.10`
-    1. Paste the full lambda source code from this folder into the `Lambda function code` section.
+    1. Paste the full lambda [source code](./RSALambda.js) from this folder into the `Lambda function code` section.
     1. Leave `Handler` as default (`index.handler`)
     1. Set `Role` to `Create new role from template(s)`
     1. Set `Role name` to `role_with_no_permissions`
