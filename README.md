@@ -1,25 +1,25 @@
 # OAuth 2.0
 
-OAuth 2.0 authentication and authorization flows implementation. The library supports 
+OAuth 2.0 authentication and authorization flows implementation. The library supports
 the following flows:
 - [OAuth2.JWTProfile.Client](#oauth2jwtprofileclient) &mdash; OAuth 2.0 with JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants
  defined in the [IETF RFC 7523](https://tools.ietf.org/html/rfc7523).
-- [OAuth2.DeviceFlow.Client](#oauth2deviceflowclient) &mdash; Device Flow for browserless and input constrained devices. The implementation conforms 
+- [OAuth2.DeviceFlow.Client](#oauth2deviceflowclient) &mdash; Device Flow for browserless and input constrained devices. The implementation conforms
 to the [draft specification](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05).
 
-The library exposes access token for applications and hides provider specific 
+The library exposes access token for applications and hides provider specific
 operations including refresh token management and expired access token renewal.
 
 **To add this library to your project, add** `#require "OAuth2.agent.lib.nut:1.0.0"` **to the top of your agent code.**
 
 ## OAuth2.JWTProfile.Client
 
-The class implements OAuth 2.0 flow with JSON Web Token (JWT) Bearer Token as a means for requesting 
+The class implements OAuth 2.0 flow with JSON Web Token (JWT) Bearer Token as a means for requesting
 an access token as well as for client authentication.
 
 **NOTE:** The flow requires RSA SHA256 signature, which is not currently supported by the Electric Imp
 [Agent API](https://electricimp.com/docs/api/agent/). As a temporary solution it is proposed to use
-[AWS Lambda](https://aws.amazon.com/lambda) function that will do 
+[AWS Lambda](https://aws.amazon.com/lambda) function that will do
 [RSA-SHA256 signatures](https://github.com/electricimp/AWSLambda/tree/master/examples/RSACrypto) for an agent.
 
 ### constructor(providerSettings, userSettings)
@@ -50,7 +50,7 @@ examples#setup-amazon-lambda-to-support-rs256-signature).
 Please refer to the [example](examples#jwt-profile-for-oauth-20) for more details on how to setup [AWS Lambda](https://aws.amazon.com/lambda).
 
 
-#### Example
+#### JWT Profile Client Creation Example
 
 ```squirrel
 // AWS Lambda libraries
@@ -79,7 +79,7 @@ local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 
 ### acquireAccessToken(tokenReadyCallback)
 
-Starts access token acquisition procedure. Invokes the provided callback function immediately 
+Starts access token acquisition procedure. Invokes the provided callback function immediately
 if access token is available and valid.
 
 Parameter details:
@@ -97,7 +97,7 @@ Parameter details:
 
 #### Example
 
-Using `client` from previous sample
+Using `client` from previous [sample](#JWTProfileClientCreationExample)
 
 ```squirrel
 client.acquireAccessToken(
@@ -111,12 +111,12 @@ client.acquireAccessToken(
 ```
 ### getValidAccessTokeOrNull()
 
-Returns access token string non blocking way. Returns access token as a string object if token is valid, 
+Returns access token string non blocking way. Returns access token as a string object if token is valid,
 null if the client is not authorized or token is expired.
 
 #### Example
 
-Using `client` from the first sample
+Using `client` from the first [sample](#JWTProfileClientCreationExample)
 
 ```squirrel
 local token = client.getValidAccessTokeOrNull();
@@ -185,7 +185,7 @@ Google [PubSub](https://cloud.google.com/pubsub/docs/) authorization flow.
 ## OAuth2.DeviceFlow.Client
 
 The class implements OAuth 2.0 authorization flow for browserless and input
-constrained devices, often referred to as the 
+constrained devices, often referred to as the
 [device flow](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05), enables
 OAuth clients to request user authorization from devices that have an
 Internet connection, but don't have an easy input method, or lack a
@@ -219,15 +219,15 @@ Google Device Auth flow. These settings are defined in the provider
 specific settings map:`OAuth2.DeviceFlow.GOOGLE`. The table
 provides `LOGIN_HOST`, `TOKEN_HOST` and `GRANT_TYPE` values.
 
-#### Example
+#### Device Flow Client Creation Example
 
 ```squirrel
-    providerSettings =  {
+    local providerSettings =  {
         "LOGIN_HOST" : "https://accounts.google.com/o/oauth2/device/code",
         "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token",
         "GRANT_TYPE" : "http://oauth.net/grant_type/device/1.0",
     };
-    userSettings = {
+    local userSettings = {
         "clientId"     : "USER_FIREBASE_CLIENT_ID",
         "clientSecret" : "USER_FIREBASE_CLIENT_SECRET",
         "scope"        : "email profile",
@@ -243,11 +243,11 @@ just token refreshing. Returns null in case of success and error otherwise.
 
 Parameter details:
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| *tokenReadyCallback* | Function | The handler to be called when access token is acquired or error is observed |
-| *notifyUserCallback* | Function | The handler to be called when user action is required. See [RFE, device flow, section3.3](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05#section-3.3) |
-| *[force]* | Boolean | [optional] the directive to start new acquisition procedure even if previous request is not complete. Default value is `false` |
+| Parameter | Type | Use | Description |
+| --- | --- | --- | --- |
+| *tokenReadyCallback* | Function | mandatory |The handler to be called when access token is acquired or error is observed |
+| *notifyUserCallback* | Function | mandatory | The handler to be called when user action is required. See [RFE, device flow, section3.3](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05#section-3.3) |
+| *force* | Boolean | optional, *default* is `false` | the directive to start new acquisition procedure even if previous request is not complete.  |
 
 `tokenReadyCallback` parameters:
 
@@ -266,7 +266,7 @@ Parameter details:
 
 #### Example
 
-Using `client` from previous sample
+Using `client` from previous [sample](#DeviceFlowClientCreationExample)
 
 ```squirrel
 client.acquireAccessToken(
@@ -333,7 +333,7 @@ Refreshes access token non blocking way, will invoke `tokenReadyCallback` in cas
 
 #### Example
 
-Using `client` from the first sample
+Using `client` from the first [sample](#DeviceFlowClientCreationExample)
 
 ```squirrel
 client.refreshAccessToken(
