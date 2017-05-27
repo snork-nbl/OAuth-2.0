@@ -5,14 +5,17 @@
 
 ## JWT Profile for OAuth 2.0
 
+This demo examples acquiring of OAuth access token from Google [OAuth service](https://developers.google.com/identity/protocols/OAuth2) with Google [OAuth 2.0 for Service Accounts](https://developers.google.com/identity/protocols/OAuth2ServiceAccount) that is implementation of `JWT Profile for OAuth 2.0` specification.
+
 ### Setup Amazon Lambda to support RS256 signature
 
-Electric Imp agent framework doesn't support `SHA256withRSA` (also known as `RS256`) signature algorithm required for JTW signing. This sections shows how to create a Lambda that will do RSA-SHA256 signatures for an agent.
+The Electric Impl OAuth library temporary [required](..#oauth2jwtprofileclient) external service to sign JSON Web Token by `SHA256withRSA` (also known as `RS256`) signature algorithm. This sections shows how to create a [AWS Lambda](https://aws.amazon.com/lambda) that will do RSA-SHA256 signatures for an agent.
 
-**NOTE**: Even though the example shows a specific use case for RSA-SHA256 encryption, the steps for setting up Lambda, IAM Policy and IAM User described here are generic and applicable to any other use case and Lambda implementation.
+**NOTE**: An Amazon Web Services (AWS) account is required to run AWS Lambda. The account must be verified, ie. billing information entered and accepted. Account verification may take up to 12 hours, and no service is available prior to verification.
 
 #### Setting up a Lambda
 
+1. In a new browser tab, log into your [AWS account](https://aws.amazon.com/console/).
 1. Select `Services` link (on the top left of the page) and them type `Lambda` in the search line
 1. Select the `Lambda Run Code without Thinking about Services` item
 1. Select `Create a Lambda function`
@@ -68,7 +71,7 @@ and is a next item to the right of the link with the user name (e.g. "us-east-1"
 
 ### Setup Google OAuth2 for Service Accounts
 
-Google names own implementation of [rfc7523](https://tools.ietf.org/html/rfc7523) as OAuth2 for [`Service Accounts`](https://developers.google.com/identity/protocols/OAuth2ServiceAccount). To obtain account's credentials do the following steps:
+Google names own implementation of [rfc7523](https://tools.ietf.org/html/rfc7523) as [`OAuth2 for Service Accounts`](https://developers.google.com/identity/protocols/OAuth2ServiceAccount). To obtain account's credentials do the following steps:
 1. Open [`Google cloud console`](https://console.cloud.google.com).
 1. Being at `Manage Resource` page create new project. Go to next step if the project was created already.
 1. Select `IAM & Admin`, then `Service Accounts` from left side menu.
@@ -114,7 +117,7 @@ Run the example code and it should print acquired access token.
 
 ## OAuth 2.0 Device Flow
 
-This example shows how to set up your Google account to use "TV and Limited Devices" authorization.
+This example is about acquiring OAuth access token from  Google OAuth service using "TV and Limited Devices" authorization.
 
 ### Adding Credentials
 
@@ -130,7 +133,7 @@ This example shows how to set up your Google account to use "TV and Limited Devi
 
 ### Customizing Consent Screen
 
-To customize the page that users see while authorizing your application go to 
+To customize the page that users see while authorizing your application go to
 `OAuth consent screen` tab.
 
 
