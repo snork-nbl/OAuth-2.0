@@ -1,7 +1,7 @@
 # Demo Instructions
 
-* [JWT Profile for OAuth 2.0](#jwt_profile_for_oauth_20)
-* [OAuth 2.0 Device Flow](#oauth_20_device_flow)
+* [JWT Profile for OAuth 2.0](#jwt-profile-for-oauth-20)
+* [OAuth 2.0 Device Flow](#oauth-20-device-flow)
 
 ## JWT Profile for OAuth 2.0
 
