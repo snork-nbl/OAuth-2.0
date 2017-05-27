@@ -1,4 +1,4 @@
-# OAuth2 Client
+# OAuth 2.0
 
 This library implements following OAuth 2.0 variations:
 - OAuth 2.0 with JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants
