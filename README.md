@@ -20,8 +20,8 @@ an access token as well as for client authentication.
 **NOTE:** The flow requires RSA SHA256 signature, which is not currently supported by the Electric Imp
 [Agent API](https://electricimp.com/docs/api/agent/). As a temporary solution it is proposed to use
 [AWS Lambda](https://aws.amazon.com/lambda) function that will do
-[RSA-SHA256 signatures](examples#setup-amazon-lambda-to-support-rs256-signature) for an agent. 
-AWS Lambda is subject to a service charge (please refer to Amazon pricing 
+[RSA-SHA256 signatures](examples#amazon-lambda-for-rsa-sha256-signatures) for an agent.
+AWS Lambda is subject to a service charge (please refer to Amazon pricing
 [page](https://aws.amazon.com/lambda/pricing/) for more details).
 
 ### constructor(providerSettings, userSettings)
@@ -97,7 +97,7 @@ Parameter details:
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `token` | *string* | String representation of access token |
-| `error` | *table* | Table with error details, `null` in case of success |
+| `error` | *string* | String with error details, `null` in case of success |
 
 #### Example
 
@@ -265,7 +265,7 @@ where `tokenReadyCallback` should have the following parameters:
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `token` | *string* | String representation of access token |
-| `error` | *table* | Table with  error details, `null` in case of success |
+| `error` | *string* | String with  error details, `null` in case of success |
 
 and `notifyUserCallback` should have two parameters:
 
@@ -295,7 +295,7 @@ client.acquireAccessToken(
 ```
 ### getValidAccessTokeOrNull()
 
-Immediately returns either existing access token if it's valid, or null if it expired or 
+Immediately returns either existing access token if it's valid, or null if it expired or
 the client is not authorized yet.
 
 #### Example
@@ -342,7 +342,7 @@ Function `tokenReadyCallback` should have two parameters:
 | Parameter | Type | Description |
 | --- | --- | --- |
 | token | String | String representation of access token |
-| error | Table | Table with  error details, `null` in case of success |
+| error | String | String with  error details, `null` in case of success |
 
 #### Example
 
