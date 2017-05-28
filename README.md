@@ -20,11 +20,13 @@ an access token as well as for client authentication.
 **NOTE:** The flow requires RSA SHA256 signature, which is not currently supported by the Electric Imp
 [Agent API](https://electricimp.com/docs/api/agent/). As a temporary solution it is proposed to use
 [AWS Lambda](https://aws.amazon.com/lambda) function that will do
-[RSA-SHA256 signatures](examples#setup-amazon-lambda-to-support-rs256-signature) for an agent. The use of Amazon service may be subject to charge additional money.
+[RSA-SHA256 signatures](examples#setup-amazon-lambda-to-support-rs256-signature) for an agent. 
+AWS Lambda is subject to a service charge (please refer to Amazon pricing 
+[page](https://aws.amazon.com/lambda/pricing/) for more details).
 
 ### constructor(providerSettings, userSettings)
 
-Construction that creates an instance of the OAuth2 JWTProfile Client.
+Construction that creates an instance of the `OAuth2.JWTProfile.Client`.
 
 The first parameter `providerSettings` is a map that contains provider specific settings:
 
@@ -56,17 +58,17 @@ The second parameter `userSettings` defines a map with user and application spec
 #require "OAuth2.agent.lib.nut:1.0.0"
 
 // Substitute with real values
-const LAMBDA_REGION = "";
-const LAMBDA_ACCESS_KEY_ID = "";
-const LAMBDA_ACCESS_KEY = "";
-const GOOGLE_ISS = "";
-const GOOGLE_SECRET_KEY = "";
+const LAMBDA_REGION        = "us-west-1";
+const LAMBDA_ACCESS_KEY_ID = "<AWS access key id>";
+const LAMBDA_ACCESS_KEY    = "<AWS access key>";
+const GOOGLE_ISS           = "rsalambda@quick-cacao-168121.iam.gserviceaccount.com";
+const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here\n-----END PRIVATE KEY-----\n";
 
 // Create AWS Lambda Instance
 local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
 local providerSettings =  {
-    "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token"
+    "TOKEN_HOST"  : "https://www.googleapis.com/oauth2/v4/token"
 };
 local userSettings = {
     "iss"         : GOOGLE_ISS,
@@ -88,14 +90,14 @@ Parameter details:
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| *tokenReadyCallback* | Function | Required | The handler to be called when access token is acquired or an error occurs |
+| `tokenReadyCallback` | Function | Required | The handler to be called when access token is acquired or an error occurs |
 
 `tokenReadyCallback` callback should have two parameters:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| token | String | String representation of access token |
-| error | Table | Table with  error details, `null` in case of success |
+| `token` | *string* | String representation of access token |
+| `error` | *table* | Table with error details, `null` in case of success |
 
 #### Example
 
@@ -148,12 +150,11 @@ To connect all the parts together and show a sample of common case of library us
 #require "OAuth2.agent.lib.nut:1.0.0
 
 // Substitute with real values
-const LAMBDA_REGION = "";
-const LAMBDA_ACCESS_KEY_ID = "";
-const LAMBDA_ACCESS_KEY = "";
-const GOOGLE_ISS = "";
-const GOOGLE_SECRET_KEY = "";
-
+const LAMBDA_REGION        = "us-west-1";
+const LAMBDA_ACCESS_KEY_ID = "<AWS access key id>";
+const LAMBDA_ACCESS_KEY    = "<AWS access key>";
+const GOOGLE_ISS           = "rsalambda@quick-cacao-168121.iam.gserviceaccount.com";
+const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here\n-----END PRIVATE KEY-----\n";
 
 local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
@@ -206,23 +207,23 @@ request on a secondary device, such as a smartphone.
 
 ### constructor(providerSettings, userSettings)
 
-Construction that creates an instance of the OAuth2 Client.
+Construction that creates an instance of the `OAuth2.DeviceFlow.Client`.
 
 The first parameter `providerSettings` is a map that contains provider specific settings:
 
-| Parameter | Type | Default Value | Description |
+| Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| `LOGIN_HOST` | string | mandatory field | Authorization endpoint - used by the client to obtain authorization from the resource owner via user-agent redirection. authorization server  |
-| `TOKEN_HOST` | string | mandatory field | Token endpoint - used by the client to exchange an authorization grant for an access token, typically with client authentication. |
-| `GRANT_TYPE` | string | `urn:ietf:params:oauth:grant-type:device_code` | Grant type identifier supported by the provider |
+| `LOGIN_HOST` | *string* | Required | Authorization endpoint - used by the client to obtain authorization from the resource owner via user-agent redirection. authorization server  |
+| `TOKEN_HOST` | *string* | Required | Token endpoint - used by the client to exchange an authorization grant for an access token, typically with client authentication. |
+| `GRANT_TYPE` | *string* | Optional. *Default:* `urn:ietf:params:oauth:grant-type:device_code` | Grant type identifier supported by the provider |
 
 The second parameter `userSettings` defines a map with user and application specific settings:
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `clientId` | string | OAuth client ID |
-| `clientSecret` | string | The project's client secret |
-| `scope` | string | Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application. |
+| Parameter | Type | Use |Description |
+| --- | --- | --- | --- |
+| `clientId` | *string* | Required | OAuth client ID |
+| `clientSecret` | *string* | Required | The project's client secret |
+| `scope` | *string* | Required | Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application. |
 
 The library provides predefined configuration settings for
 Google Device Auth flow. These settings are defined in the provider
@@ -255,24 +256,23 @@ Parameter details:
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| *tokenReadyCallback* | Function | mandatory |The handler to be called when access token is acquired or error is observed |
-| *notifyUserCallback* | Function | mandatory | The handler to be called when user action is required. See [RFE, device flow, section3.3](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05#section-3.3) |
-| *force* | Boolean | optional, *default* is `false` | the directive to start new acquisition procedure even if previous request is not complete.  |
+| `tokenReadyCallback` | *function* | Required | The handler to be called when access token is acquired or an error occurred |
+| `notifyUserCallback` | *function* | Required | The handler to be called when user action is required. See [RFE, device flow, section3.3](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05#section-3.3) |
+| `force` | *boolean* | Optional. *Default:* `false` | The flag forces the token acquisition process to start from the beginning even if the previous request did not complete yet. The previous session will be terminated. |
 
-`tokenReadyCallback` parameters:
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| token | String | String representation of access token |
-| error | Table | Table with  error details, `null` in case of success |
-
-
-`notifyUserCallback` parameters:
+where `tokenReadyCallback` should have the following parameters:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| uri | String | the URI the user need to use for client authorization |
-| code | String | the code the user need to use somewhere at authorization server |
+| `token` | *string* | String representation of access token |
+| `error` | *table* | Table with  error details, `null` in case of success |
+
+and `notifyUserCallback` should have two parameters:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `uri`  | *string* | The URI the user need to use for client authorization |
+| `code` | *string* | The code for the authorization server |
 
 #### Example
 
@@ -295,7 +295,8 @@ client.acquireAccessToken(
 ```
 ### getValidAccessTokeOrNull()
 
-Returns access token string non blocking way. Returns access token as a string object if token is valid, null if the client is not authorized or token is expired.
+Immediately returns either existing access token if it's valid, or null if it expired or 
+the client is not authorized yet.
 
 #### Example
 
@@ -303,8 +304,11 @@ Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
 local token = client.getValidAccessTokeOrNull();
-if (token) server.log("token is valid and has value: " + token);
-else server.log("token is either expired  or client is not authorized!");
+if (token) {
+    server.log("Token is valid: " + token);
+} else {
+    server.log("Either token expired or client is not authorized!");
+}
 ```
 
 ### isTokenValid()
@@ -316,7 +320,7 @@ Checks if access token is valid.
 Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
-server.log("token is valid=" + client.isTokenValid());
+server.log("Token is valid: " + client.isTokenValid());
 ```
 
 ### isAuthorized()
@@ -326,15 +330,14 @@ Checks if the client is authorized and able to refresh expired access token.
 Using `client` from the first [sample](#device-flow-client-creation-example)
 
 ```squirrel
-server.log("client is authorized=" + client.isAuthorized());
+server.log("Client is authorized: " + client.isAuthorized());
 ```
-
 
 ### refreshAccessToken(tokenReadyCallback)
 
-Refreshes access token non blocking way, will invoke `tokenReadyCallback` in case of success.
+Asynchronously refreshes access token and invokes `tokenReadyCallback` when done or an error occurs.
 
-`tokenReadyCallback` parameters:
+Function `tokenReadyCallback` should have two parameters:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
