@@ -5,13 +5,23 @@
 
 ## JWT Profile for OAuth 2.0
 
-This demo examples acquiring of OAuth access token from Google [OAuth service](https://developers.google.com/identity/protocols/OAuth2) with Google [OAuth 2.0 for Service Accounts](https://developers.google.com/identity/protocols/OAuth2ServiceAccount) that is implementation of `JWT Profile for OAuth 2.0` specification.
+The examples shows how to acquire access token from Google
+ [OAuth service](https://developers.google.com/identity/protocols/OAuth2) 
+ via Google [OAuth 2.0 for Service Accounts](https://developers.google.com/identity/protocols/OAuth2ServiceAccount) 
+ Protocol, which implements the `JWT Profile for OAuth 2.0` 
+ [specification](https://tools.ietf.org/html/rfc7523).
 
 ### Setup Amazon Lambda to support RS256 signature
 
-The Electric Impl OAuth library temporary [requires](../README.md#oauth2jwtprofileclient) external service to sign JSON Web Token by `SHA256withRSA` (also known as `RS256`) signature algorithm. This sections shows how to create a [AWS Lambda](https://aws.amazon.com/lambda) that will do RSA-SHA256 signatures for an agent.
+Until the `RSA SHA256` signature is not natively supported by the Electric Imp 
+[Agent API](https://electricimp.com/docs/api/agent/), the `OAuth 2.0` library
+[requires](../README.md#oauth2jwtprofileclient) an external service to sign requests. 
+This sections shows how to create and configure an [AWS Lambda](https://aws.amazon.com/lambda) 
+that will do `RSA-SHA256` signatures for an agent.
 
-**NOTE**: An Amazon Web Services (AWS) account is required to run AWS Lambda. The account must be verified, ie. billing information entered and accepted. Account verification may take up to 12 hours, and no service is available prior to verification.
+**NOTE**: An Amazon Web Services (AWS) account is required to run AWS Lambda. 
+The account must be verified, ie. billing information provided and accepted by Amazon. 
+Account verification may take up to 12 hours, and no service is available prior to confirmation.
 
 #### Setting up a Lambda
 
@@ -71,9 +81,11 @@ and is a next item to the right of the link with the user name (e.g. "us-east-1"
 
 ### Setup Google OAuth2 for Service Accounts
 
-Google names own implementation of [rfc7523](https://tools.ietf.org/html/rfc7523) as [`OAuth2 for Service Accounts`](https://developers.google.com/identity/protocols/OAuth2ServiceAccount). To obtain account's credentials do the following steps:
+Google names own implementation of [rfc7523](https://tools.ietf.org/html/rfc7523) 
+as [`OAuth2 for Service Accounts`](https://developers.google.com/identity/protocols/OAuth2ServiceAccount). 
+To obtain account's credentials do the following steps:
 1. Open [`Google cloud console`](https://console.cloud.google.com).
-1. Being at `Manage Resource` page create new project. Go to next step if the project was created already.
+1. Being at `Manage Resource` page create new project. Go to the next step if the project was created already.
 1. Select `IAM & Admin`, then `Service Accounts` from left side menu.
 1. Press `Create service account` button.
 1. Provide new service account name at corresponding field.
@@ -117,7 +129,8 @@ Run the example code and it should print acquired access token.
 
 ## OAuth 2.0 Device Flow
 
-This example is about acquiring OAuth access token from  Google OAuth service using "TV and Limited Devices" authorization.
+This example is about acquiring OAuth access token from  Google OAuth service using 
+"TV and Limited Devices" authorization.
 
 ### Adding Credentials
 
@@ -129,7 +142,8 @@ This example is about acquiring OAuth access token from  Google OAuth service us
 1. Enter a name and press `Create`
 1. Copy client ID and client secret from popup window shown in the browser
 
-**NOTE**: If you have lost your Client ID and Secret click on the ID name in the `OAuth 2.0 client IDs` list and copy them from the Client ID details page.
+**NOTE**: If you have lost your Client ID and Secret click on the ID name in the `OAuth 2.0 client IDs` 
+list and copy them from the Client ID details page.
 
 ### Customizing Consent Screen
 
