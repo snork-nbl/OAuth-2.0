@@ -1,29 +1,25 @@
 # OAuth 2.0
 
-OAuth 2.0 authentication and authorization flows implementation. The library supports
-the following flows:
-- [OAuth2.JWTProfile.Client](#oauth2jwtprofileclient) &mdash; OAuth 2.0 with JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants
- defined in the [IETF RFC 7523](https://tools.ietf.org/html/rfc7523).
-- [OAuth2.DeviceFlow.Client](#oauth2deviceflowclient) &mdash; Device Flow for browserless and input constrained devices. The implementation conforms
-to the [draft specification](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05).
+This library provides OAuth 2.0 authentication and authorization flows. It supports the following flows:
 
-The library exposes access token for applications and hides provider specific
-operations including refresh token management and expired access token renewal.
+- [OAuth2.JWTProfile.Client](#oauth2jwtprofileclient) &mdash; OAuth 2.0 with the JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants as defined in [IETF RFC 7523](https://tools.ietf.org/html/rfc7523).
+- [OAuth2.DeviceFlow.Client](#oauth2deviceflowclient) &mdash; OAuth 2.0 Device Flow for browserless and input-constrained devices. The implementation conforms to the [IETF draft device flow specification](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05).
+
+The library exposes retrieved access tokens for applications and hides provider-specific operations, including the renewal of expired tokens.
 
 **To add this library to your project, add** `#require "OAuth2.agent.lib.nut:1.0.0"` **to the top of your agent code.**
 
 ## OAuth2.JWTProfile.Client
 
-The class implements OAuth 2.0 flow using JSON Web Token (JWT) Bearer Token as a means for requesting an access token and for client authentication.
+This class implements an OAuth 2.0 client flow using a JSON Web Token (JWT) as the means for requesting access tokens and for client authentication.
 
-**Note** The flow requires RSA-SHA256 signature, which is not currently supported by the Electric Imp [imp API](https://electricimp.com/docs/api/). As a temporary solution we suggest that you use an [AWS Lambda](https://aws.amazon.com/lambda) function that will do [RSA-SHA256 signatures](examples#amazon-lambda-for-rsa-sha256-signatures) for an agent. AWS Lambda is subject to a service charge so please refer to the Amazon pricing
-[page](https://aws.amazon.com/lambda/pricing/) for more information.
+**Note** The flow requires an RSA-SHA256 signature which is not currently supported by the Electric Imp [imp API](https://electricimp.com/docs/api/). As a temporary solution we suggest that you use an [AWS Lambda](https://aws.amazon.com/lambda) function that will perform [RSA-SHA256 signatures](examples#amazon-lambda-for-rsa-sha256-signatures) for an agent. However, please note that AWS Lambda is subject to a service charge so you should refer to the Amazon pricing [page](https://aws.amazon.com/lambda/pricing/) for more information before proceeding.
 
 ## OAuth2.JWTProfile.Client Usage
 
 ### constructor(*providerSettings, userSettings*)
 
-The constructor creates an instance of an *OAuth2.JWTProfile.Client* object. The first parameter, *providerSettings*, is a map that contains provider-specific settings:
+The constructor creates an instance of the *OAuth2.JWTProfile.Client* class. The first parameter, *providerSettings*, is a map that contains provider-specific settings:
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
@@ -33,8 +29,8 @@ The second parameter, *userSettings*, defines a map with user- and application-s
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| *iss* | String | Required | The JSON Web Token issuer |
-| *scope* | String | Required | Scopes enable your application to request access only to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
+| *iss* | String | Required | The JWT issuer |
+| *scope* | String | Required | A scope. Scopes enable your application to request access only to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
 | *jwtSignKey* | String | Required | A JWT sign secret key |
 | *rs256signer* | *[AWSLambda](https://github.com/electricimp/awslambda)* | Required | Instance of [AWSLambda](https://github.com/electricimp/awslambda) for RSA-SHA256 encryption. You can use [this example code](examples#jwt-profile-for-oauth-20) to create the AWS Lambda function |
 | *sub* | String | Optional. *Default:* the value of `iss` | The *subject* of the JWT. Google seems to ignor this field. |
@@ -74,32 +70,31 @@ local userSettings = {
 
 local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 ```
+
 **Important** The name of the AWS Lambda function **must** be `RSALambda`.
 
 ## OAuth2.JWTProfile.Client Methods
 
 ### acquireAccessToken(*tokenReadyCallback*)
 
-This method begins the access-token acquisition procedure. It invokes the provided callback function immediately if the access token is available and valid.
+This method begins the access-token acquisition procedure. It invokes the provided callback function immediately if the access token is already available and valid.
 
 The function passed into *tokenReadyCallback* should have two parameters if its own:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| *token* | String | String representation of the access token |
-| *error* | String | String with error details, otherwise `null` in the case of success |
+| *token* | String | The access token |
+| *error* | String | Error details, or `null` in the case of success |
 
 #### Example
 
-Using *client* from the [construction example](#jwt-profile-client-creation-example):
-
 ```squirrel
 client.acquireAccessToken(
-    function(resp, err) {
-        if (err) {
-            server.error(err);
+    function(token, error) {
+        if (error) {
+            server.error(error);
         } else {
-            server.log("Access Token: " + resp);
+            server.log("The access token has the value: " + token);
         }
     }
 );
@@ -107,7 +102,7 @@ client.acquireAccessToken(
 
 ### getValidAccessTokeOrNull()
 
-This method returns an access token string in a non-blocking way. It returns the access token as a string if the token is valid, or `null` if the client is not authorized or the token has expired.
+This method returns an access token string in a non-blocking way. It returns `null` if the client is not authorized or the token has expired.
 
 #### Example
 
@@ -115,9 +110,9 @@ This method returns an access token string in a non-blocking way. It returns the
 local token = client.getValidAccessTokeOrNull();
 
 if (token) {
-    server.log("token is valid and has value: " + token);
+    server.log("The access token is valid and has the value: " + token);
 } else {
-    server.log("token is either expired  or client is not authorized!");
+    server.log("The access token has either expired or the client is not authorized");
 }
 ```
 
@@ -140,8 +135,8 @@ server.log("The access token is " + (client.isTokenValid() ? "valid" : "invalid"
 
 // Substitute with real values
 const LAMBDA_REGION        = "us-west-1";
-const LAMBDA_ACCESS_KEY_ID = "<AWS access key id>";
-const LAMBDA_ACCESS_KEY    = "<AWS access key>";
+const LAMBDA_ACCESS_KEY_ID = "<YOUR_AWS_ACCESS_KEY_ID>";
+const LAMBDA_ACCESS_KEY    = "<YOUR_AWS_ACCESS_KEY>";
 const GOOGLE_ISS           = "rsalambda@quick-cacao-168121.iam.gserviceaccount.com";
 const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here\n-----END PRIVATE KEY-----\n";
 
@@ -162,15 +157,16 @@ local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 
 local token = client.getValidAccessTokeOrNull();
 if (token != null) {
+    // We have a valid token already
     server.log("Valid access token is: " + token);
 } else {
-    // Starting procedure of access token acquisition
+    // Acquire a new access token
     local error = client.acquireAccessToken(
-        function(resp, err) {
+        function(newToken, err) {
             if (err) {
                 server.error("Token acquisition error: " + err);
             } else {
-                server.log("Received token: " + resp);
+                server.log("Received a new token: " + newToken);
             }
         }
     );
