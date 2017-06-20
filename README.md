@@ -223,7 +223,7 @@ client <- OAuth2.DeviceFlow.Client(providerSettings, userSettings);
 
 ### acquireAccessToken(*tokenReadyCallback, notifyUserCallback, force*)
 
-This method begins the access-token acquisition procedure. Depending on the client state, it may start a full client authorization procedure or just refresh a token that has already been aquired. It returns `null` in the case of success, or an error message otherwise. The access token is delivered through the function passed into the *tokenReadyCallback* function.
+This method begins the access-token acquisition procedure. Depending on the client state, it may start a full client authorization procedure or just refresh a token that has already been aquired. It returns `null` in the case of success, or an error message if the client is already performing a request and the *force* directive is set. The access token is delivered through the function passed into the *tokenReadyCallback* function.
 
 Parameter details:
 
@@ -347,7 +347,7 @@ if (token != null) {
     server.log("Valid access token is: " + token);
 } else {
     // Acquire a new access token
-    client.acquireAccessToken(
+    local error = client.acquireAccessToken(
         // Token received callback function
         function(resp, err) {
             if (err) {
@@ -363,6 +363,8 @@ if (token != null) {
             server.log("CODE: " + code);
         }
     );
+    
+    if (error != null) server.error("Client is already performing request (" + error + ")");
 }
 ```
 
