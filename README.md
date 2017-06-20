@@ -19,13 +19,13 @@ This class implements an OAuth 2.0 client flow using a JSON Web Token (JWT) as t
 
 ### constructor(*providerSettings, userSettings*)
 
-The constructor creates an instance of the *OAuth2.JWTProfile.Client* class. The first parameter, *providerSettings*, is a map that contains provider-specific settings:
+The constructor creates an instance of the *OAuth2.JWTProfile.Client* class. The first parameter, *providerSettings*, is a table that contains provider-specific settings:
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
 | *TOKEN_HOST* | String | Required | The token endpoint. This is used by the client to exchange an authorization grant for an access token, typically with client authentication |
 
-The second parameter, *userSettings*, defines a map with user- and application-specific settings:
+The second parameter, *userSettings*, defines a table with user- and application-specific settings:
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
@@ -161,7 +161,7 @@ if (token != null) {
     server.log("Valid access token is: " + token);
 } else {
     // Acquire a new access token
-    local error = client.acquireAccessToken(
+    client.acquireAccessToken(
         function(newToken, err) {
             if (err) {
                 server.error("Token acquisition error: " + err);
@@ -170,8 +170,6 @@ if (token != null) {
             }
         }
     );
-
-    if (error != null) server.error("Failed to obtain token: " + error);
 }
 ```
 
@@ -179,13 +177,13 @@ if (token != null) {
 
 ## OAuth2.DeviceFlow.Client
 
-This class implements an OAuth 2.0 authorization flow for browserless and/or input-constrained devices. Often referred to as the [device flow](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05), this flow enables OAuth clients to request user authorization from devices that have an Internet connection, but lack a suitable input method or web browser for a more traditional OAuth flow. This authorization flow therefore instructs the user to perform the authorization request on a secondary device, such as a smartphone.
+This class implements an OAuth 2.0 authorization flow for browserless and/or input-constrained devices. Often referred to as the [device flow](https://tools.ietf.org/html/draft-ietf-oauth-device-flow-05), this flow enables OAuth clients to request user authorization from devices that have an Internet connection but lack a suitable input method or web browser required for a more traditional OAuth flow. This authorization flow therefore instructs the user to perform the authorization request on a secondary device, such as a smartphone.
 
 ## OAuth2.DeviceFlow.Client Usage
 
 ### constructor(*providerSettings, userSettings*)
 
-This constructor creates an instance of the *OAuth2.DeviceFlow.Client* class. The first parameter, *providerSettings*, is a map that contains provider-specific settings:
+This constructor creates an instance of the *OAuth2.DeviceFlow.Client* class. The first parameter, *providerSettings*, is a table that contains provider-specific settings:
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
@@ -193,7 +191,7 @@ This constructor creates an instance of the *OAuth2.DeviceFlow.Client* class. Th
 | *TOKEN_HOST* | String | Required | The token endpoint. This is used by the client to exchange an authorization grant for an access token, typically with client authentication |
 | *GRANT_TYPE* | String | Optional. Default: `"urn:ietf:params:oauth:grant-type:device_code"` | The grant type identifier supported by the provider |
 
-The second parameter, *userSettings*, defines a map with user- and application-specific settings:
+The second parameter, *userSettings*, takes a table containing user- and application-specific settings:
 
 | Parameter | Type | Use |Description |
 | --- | --- | --- | --- |
@@ -225,7 +223,7 @@ client <- OAuth2.DeviceFlow.Client(providerSettings, userSettings);
 
 ### acquireAccessToken(*tokenReadyCallback, notifyUserCallback, force*)
 
-This methiod begins the access-token acquisition procedure. Depending on the client state, it may start a full client authorization procedure or just refresh a token that has already been aquired. It returns `null` in the case of success, or an error message otherwise. The access token is delivered through the function passed into the *tokenReadyCallback* function.
+This method begins the access-token acquisition procedure. Depending on the client state, it may start a full client authorization procedure or just refresh a token that has already been aquired. It returns `null` in the case of success, or an error message otherwise. The access token is delivered through the function passed into the *tokenReadyCallback* function.
 
 Parameter details:
 
@@ -302,13 +300,12 @@ This method checks if the client is authorized and able to refresh an expired ac
 #### Example
 
 ```squirrel
-server.log("Client is authorized: " + client.isAuthorized());
 server.log("The client is " + (client.isAuthorized() ? "authorized" : "unauthorized"));
 ```
 
 ### refreshAccessToken(*tokenReadyCallback*)
 
-This method asynchronously refreshes the access token and invokes the function passed into the *tokenReadyCallback* parameter when this has been completed, or an error occurs. The *tokenReadyCallback* function has two parameters:
+This method asynchronously refreshes the access token and invokes the function passed into the *tokenReadyCallback* parameter when this has been completed or an error occurs. The *tokenReadyCallback* function has two parameters:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -319,11 +316,11 @@ This method asynchronously refreshes the access token and invokes the function p
 
 ```squirrel
 client.refreshAccessToken(
-    function(resp, err) {
+    function(token, err) {
         if (err) {
-            server.error(err);
+            server.error("Token refresh error: " + err);
         } else {
-            server.log(resp);
+            server.log("The access token is refreshed. It has the value: " + token);
         }
     }
 );
@@ -350,7 +347,7 @@ if (token != null) {
     server.log("Valid access token is: " + token);
 } else {
     // Acquire a new access token
-    local error = client.acquireAccessToken(
+    client.acquireAccessToken(
         // Token received callback function
         function(resp, err) {
             if (err) {
@@ -366,8 +363,6 @@ if (token != null) {
             server.log("CODE: " + code);
         }
     );
-
-    if (error != null) server.error("Failed to obtain token: " + error);
 }
 ```
 
