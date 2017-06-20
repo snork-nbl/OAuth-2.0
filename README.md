@@ -33,7 +33,7 @@ The second parameter, *userSettings*, defines a table with user- and application
 | *scope* | String | Required | A scope. Scopes enable your application to request access only to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
 | *jwtSignKey* | String | Required | A JWT sign secret key |
 | *rs256signer* | *[AWSLambda](https://github.com/electricimp/awslambda)* | Required | Instance of [AWSLambda](https://github.com/electricimp/awslambda) for RSA-SHA256 encryption. You can use [this example code](examples#jwt-profile-for-oauth-20) to create the AWS Lambda function |
-| *sub* | String | Optional. *Default:* the value of `iss` | The *subject* of the JWT. Google seems to ignor this field. |
+| *sub* | String | Optional. *Default:* the value of *iss* | The subject of the JWT. **Note** Google seems to ignore this field |
 
 **Note** When omitted, the optional *sub* property is substituted by the mandatory *iss* property.
 
@@ -223,7 +223,7 @@ client <- OAuth2.DeviceFlow.Client(providerSettings, userSettings);
 
 ### acquireAccessToken(*tokenReadyCallback, notifyUserCallback, force*)
 
-This method begins the access-token acquisition procedure. Depending on the client state, it may start a full client authorization procedure or just refresh a token that has already been aquired. It returns `null` in the case of success, or an error message if the client is already performing a request and the *force* directive is set. The access token is delivered through the function passed into the *tokenReadyCallback* function.
+This method begins the access-token acquisition procedure. Depending on the client state, it may start a full client authorization procedure or just refresh a token that has already been acquired. It returns `null` in the case of success, or an error message if the client is already performing a request and the *force* directive is set. The access token is delivered through the function passed into the *tokenReadyCallback* function.
 
 Parameter details:
 
@@ -252,11 +252,11 @@ The *notifyUserCallback* function should have the following parameters:
 ```squirrel
 client.acquireAccessToken(
     // Token Ready Callback
-    function(resp, err) {
+    function(token, err) {
         if (err) {
-            server.error(err);
+            server.error("Token retrieval error: " + err);
         } else {
-            server.log(resp);
+            server.log("The access token: " + token);
         }
     },
     // User notification callback
@@ -267,6 +267,7 @@ client.acquireAccessToken(
     }
 );
 ```
+
 ### getValidAccessTokeOrNull()
 
 This method immediately returns either an existing access token if it is valid, or `null` if the token has expired or the client is yet not authorized.
