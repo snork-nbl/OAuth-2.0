@@ -23,7 +23,7 @@ The constructor creates an instance of the *OAuth2.JWTProfile.Client* class. The
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| *TOKEN_HOST* | String | Required | The token endpoint. This is used by the client to exchange an authorization grant for an access token, typically with client authentication |
+| *tokenHost* | String | Required | The token endpoint. This is used by the client to exchange an authorization grant for an access token, typically with client authentication |
 
 The second parameter, *userSettings*, defines a table with user- and application-specific settings:
 
@@ -58,7 +58,7 @@ const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here
 local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
 local providerSettings =  {
-    "TOKEN_HOST"  : "https://www.googleapis.com/oauth2/v4/token"
+    "tokenHost"  : "https://www.googleapis.com/oauth2/v4/token"
 };
 
 local userSettings = {
@@ -143,7 +143,7 @@ const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here
 local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
 local providerSettings =  {
-    "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token"
+    "tokenHost" : "https://www.googleapis.com/oauth2/v4/token"
 };
 
 local userSettings = {
@@ -187,9 +187,9 @@ This constructor creates an instance of the *OAuth2.DeviceFlow.Client* class. Th
 
 | Parameter | Type | Use | Description |
 | --- | --- | --- | --- |
-| *LOGIN_HOST* | String | Required | The authorization endpoint. This is used by the client to obtain authorization from the resource owner via user-agent redirection |
-| *TOKEN_HOST* | String | Required | The token endpoint. This is used by the client to exchange an authorization grant for an access token, typically with client authentication |
-| *GRANT_TYPE* | String | Optional. Default: `"urn:ietf:params:oauth:grant-type:device_code"` | The grant type identifier supported by the provider |
+| *loginHost* | String | Required | The authorization endpoint. This is used by the client to obtain authorization from the resource owner via user-agent redirection |
+| *tokenHost* | String | Required | The token endpoint. This is used by the client to exchange an authorization grant for an access token, typically with client authentication |
+| *grantType* | String | Optional. Default: `"urn:ietf:params:oauth:grant-type:device_code"` | The grant type identifier supported by the provider |
 
 The second parameter, *userSettings*, takes a table containing user- and application-specific settings:
 
@@ -199,15 +199,15 @@ The second parameter, *userSettings*, takes a table containing user- and applica
 | *clientSecret* | String | Required | The project's client secret |
 | *scope* | String | Required | A scope. Scopes enable your application to only request access to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
 
-The library provides predefined configuration settings for the Google Device Auth flow. These settings are defined in the provider-specific settings map: *OAuth2.DeviceFlow.GOOGLE*. This table provides pre-populated *LOGIN_HOST, TOKEN_HOST* and *GRANT_TYPE* values.
+The library provides predefined configuration settings for the Google Device Auth flow. These settings are defined in the provider-specific settings map: *OAuth2.DeviceFlow.GOOGLE*. This table provides pre-populated *loginHost, tokenHost* and *grantType* values.
 
 #### Device Flow Client Creation Example
 
 ```squirrel
 local providerSettings =  {
-    "LOGIN_HOST" : "https://accounts.google.com/o/oauth2/device/code",
-    "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token",
-    "GRANT_TYPE" : "http://oauth.net/grant_type/device/1.0",
+    "loginHost" : "https://accounts.google.com/o/oauth2/device/code",
+    "tokenHost" : "https://www.googleapis.com/oauth2/v4/token",
+    "grantType" : "http://oauth.net/grantType/device/1.0",
 };
 
 local userSettings = {
