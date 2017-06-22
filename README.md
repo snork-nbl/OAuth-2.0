@@ -79,7 +79,7 @@ local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 
 This method begins the access-token acquisition procedure. It invokes the provided callback function immediately if the access token is already available and valid.
 
-The function passed into *tokenReadyCallback* should have two parameters if its own:
+The function passed into *tokenReadyCallback* should have two parameters of its own:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
