@@ -207,7 +207,7 @@ The library provides predefined configuration settings for the Google Device Aut
 local providerSettings =  {
     "loginHost" : "https://accounts.google.com/o/oauth2/device/code",
     "tokenHost" : "https://www.googleapis.com/oauth2/v4/token",
-    "grantType" : "http://oauth.net/grantType/device/1.0",
+    "grantType" : "http://oauth.net/grant_type/device/1.0",
 };
 
 local userSettings = {

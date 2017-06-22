@@ -301,7 +301,7 @@ class OAuth2.DeviceFlow {
     GOOGLE =  {
         "loginHost" : "https://accounts.google.com/o/oauth2/device/code",
         "tokenHost" : "https://www.googleapis.com/oauth2/v4/token",
-        "grantType" : "http://oauth.net/grantType/device/1.0",
+        "grantType" : "http://oauth.net/grant_type/device/1.0",
     };
 
     // The class that represents OAuth2 Client role.
