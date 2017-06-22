@@ -173,7 +173,7 @@ class  OAuth2.JWTProfile {
                 "message"    : header + "." + body
             };
 
-            _log("Calling lambda:" + signrequest);
+            _log("Calling lambda...");
             _signer.invoke({
                 "payload" : signrequest,
                 "functionName" : "RSALambda"
@@ -280,13 +280,13 @@ class  OAuth2.JWTProfile {
         // Records non-error event
         function _log(message) {
             if (_debug) {
-                server.log("[OAuth2JWTProfile]" + message);
+                server.log("[OAuth2JWTProfile] " + message);
             }
         }
 
         // Records error event
         function _error(message) {
-            server.error("[OAuth2JWTProfile]" + message);
+            server.error("[OAuth2JWTProfile] " + message);
         }
 
     }
@@ -811,12 +811,14 @@ class OAuth2.DeviceFlow {
 
         // Records error event
         function _error(txt) {
-            server.error(txt);
+            server.error("[OAuth2DeviceFlow] " + txt);
         }
 
         // Records non-error event
         function _log(txt) {
-            if (_debug) server.log(txt);
+            if (_debug) {
+                server.log("[OAuth2DeviceFlow] " + txt);
+            }
         }
     } // end of Client
 }
