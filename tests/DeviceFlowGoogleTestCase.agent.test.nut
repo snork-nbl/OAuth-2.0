@@ -94,7 +94,7 @@ class DeviceFlowGoogleTestCase extends ImpTestCase {
     function testRunCommandAsynchronously() {
         return Promise(function (success, failure) {
 
-            local token = auth.getValidAccessTokeOrNull();
+            local token = auth.getValidAccessTokenOrNull();
             if (null != token) {
                 server.log("VerifyTokenTest: it was not null!. something went wrong!");
                 checkToken(token, success, failure);

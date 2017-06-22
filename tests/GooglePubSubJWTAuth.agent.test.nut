@@ -83,7 +83,7 @@ class GooglePubSubJWTAuth extends ImpTestCase {
     function testAcquireAndVerifyToken() {
         return Promise(function (success, failure) {
 
-            local token = auth.getValidAccessTokeOrNull();
+            local token = auth.getValidAccessTokenOrNull();
             if (null != token) {
                 server.log("VerifyTokenTest: it was not null!. something went wrong!");
                 failure("Initial token is not null");

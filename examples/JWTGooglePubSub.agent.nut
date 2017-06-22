@@ -44,7 +44,7 @@ local config = {
 // Initializing client with provided Google Firebase config
 client <- OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
 
-local token = client.getValidAccessTokeOrNull();
+local token = client.getValidAccessTokenOrNull();
 if (token != null) {
     server.log("Valid access token is: " + token);
 } else {

@@ -100,14 +100,14 @@ client.acquireAccessToken(
 );
 ```
 
-### getValidAccessTokeOrNull()
+### getValidAccessTokenOrNull()
 
 This method returns an access token string in a non-blocking way. It returns `null` if the client is not authorized or the token has expired.
 
 #### Example
 
 ```squirrel
-local token = client.getValidAccessTokeOrNull();
+local token = client.getValidAccessTokenOrNull();
 
 if (token) {
     server.log("The access token is valid and has the value: " + token);
@@ -155,7 +155,7 @@ local userSettings = {
 
 local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 
-local token = client.getValidAccessTokeOrNull();
+local token = client.getValidAccessTokenOrNull();
 if (token != null) {
     // We have a valid token already
     server.log("Valid access token is: " + token);
@@ -268,14 +268,14 @@ client.acquireAccessToken(
 );
 ```
 
-### getValidAccessTokeOrNull()
+### getValidAccessTokenOrNull()
 
 This method immediately returns either an existing access token if it is valid, or `null` if the token has expired or the client is yet not authorized.
 
 #### Example
 
 ```squirrel
-local token = client.getValidAccessTokeOrNull();
+local token = client.getValidAccessTokenOrNull();
 
 if (token) {
     server.log("Token is valid: " + token);
@@ -342,7 +342,7 @@ local userConfig = {
 // Initialize client with provided Google Firebase config
 client <- OAuth2.DeviceFlow.Client(OAuth2.DeviceFlow.GOOGLE, userConfig);
 
-local token = client.getValidAccessTokeOrNull();
+local token = client.getValidAccessTokenOrNull();
 
 if (token != null) {
     server.log("Valid access token is: " + token);
