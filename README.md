@@ -7,7 +7,7 @@ This library provides OAuth 2.0 authentication and authorization flows. It suppo
 
 The library exposes retrieved access tokens for applications and hides provider-specific operations, including the renewal of expired tokens.
 
-**To add this library to your project, add** `#require "OAuth2.agent.lib.nut:2.0.0"` **to the top of your agent code.**
+**To add this library to your project, add** `#require "OAuth2.agent.lib.nut:1.0.0"` **to the top of your agent code.**
 
 ## OAuth2.JWTProfile.Client
 
@@ -45,7 +45,7 @@ The second parameter, *userSettings*, defines a table with user- and application
 #require "AWSLambda.agent.lib.nut:1.0.0"
 
 // OAuth 2.0 library
-#require "OAuth2.agent.lib.nut:2.0.0"
+#require "OAuth2.agent.lib.nut:1.0.0"
 
 // Substitute with real values
 const LAMBDA_REGION        = "us-west-1";
@@ -131,7 +131,7 @@ server.log("The access token is " + (client.isTokenValid() ? "valid" : "invalid"
 ```squirrel
 #require "AWSRequestV4.class.nut:1.0.2"
 #require "AWSLambda.agent.lib.nut:1.0.0"
-#require "OAuth2.agent.lib.nut:2.0.0
+#require "OAuth2.agent.lib.nut:1.0.0
 
 // Substitute with real values
 const LAMBDA_REGION        = "us-west-1";
@@ -330,7 +330,7 @@ client.refreshAccessToken(
 ## Complete Example
 
 ```squirrel
-#require "OAuth2.agent.lib.nut:2.0.0
+#require "OAuth2.agent.lib.nut:1.0.0
 
 // Fill CLIENT_ID and CLIENT_SECRET with correct values
 local userConfig = {
@@ -364,7 +364,7 @@ if (token != null) {
             server.log("CODE: " + code);
         }
     );
-    
+
     if (error != null) server.error("Client is already performing request (" + error + ")");
 }
 ```
