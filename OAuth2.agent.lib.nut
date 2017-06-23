@@ -40,7 +40,7 @@ enum Oauth2DeviceFlowState {
 
 // The class that introduces OAuth2 namespace
 class OAuth2 {
-    static VERSION = "1.0.0";
+    static VERSION = "2.0.0";
 }
 
 // The class that represents OAuth 2.0 authorization flow
@@ -79,7 +79,7 @@ class  OAuth2.JWTProfile {
         // Parameters:
         //      provider    OAuth2 provider configuration
         //                  Must be a table with following set of strings:
-        //                      TOKEN_HOST  - provider's token endpoint URI
+        //                      tokenHost   - provider's token endpoint URI
         //      params      Client specific parameters
         //                  Must be a table with following set of strings:
         //                      iss         - JWT issuer
@@ -89,10 +89,10 @@ class  OAuth2.JWTProfile {
         //                                    https://github.com/electricimp/AWSLambda/blob/master/examples/RSACrypto#setting-up-the-aim-user
         //                      sub         - [optional] the subject of the JWT
         constructor(provider, user) {
-             if (!("TOKEN_HOST" in provider) ) {
+             if (!("tokenHost" in provider) ) {
                 throw "Invalid Provider";
             }
-            _tokenHost = provider.TOKEN_HOST;
+            _tokenHost = provider.tokenHost;
 
              if (!("iss" in user)    ||
                  !("scope" in  user) ||
@@ -104,8 +104,11 @@ class  OAuth2.JWTProfile {
 
             _iss = user.iss;
             // mandatory field but GOOGLE skips it
-            if ("sub" in user) _sub = user.sub;
-            else               _sub = _iss;
+            if ("sub" in user) {
+                _sub = user.sub;
+            } else {
+                _sub = _iss;
+            }
 
             _scope = user.scope;
             _jwtSignKey = user.jwtSignKey;
@@ -116,7 +119,7 @@ class  OAuth2.JWTProfile {
         // Returns:
         //      Access token as string object
         //      Null if the client is not authorized or token is expired
-        function getValidAccessTokeOrNull() {
+        function getValidAccessTokenOrNull() {
             if (isTokenValid()) {
                 return _accessToken;
             } else {
@@ -170,7 +173,7 @@ class  OAuth2.JWTProfile {
                 "message"    : header + "." + body
             };
 
-            _log("Calling lambda:" + signrequest);
+            _log("Calling lambda...");
             _signer.invoke({
                 "payload" : signrequest,
                 "functionName" : "RSALambda"
@@ -277,13 +280,13 @@ class  OAuth2.JWTProfile {
         // Records non-error event
         function _log(message) {
             if (_debug) {
-                server.log("[OAuth2JWTProfile]" + message);
+                server.log("[OAuth2JWTProfile] " + message);
             }
         }
 
         // Records error event
         function _error(message) {
-            server.error("[OAuth2JWTProfile]" + message);
+            server.error("[OAuth2JWTProfile] " + message);
         }
 
     }
@@ -296,9 +299,9 @@ class OAuth2.DeviceFlow {
 
     // Predefined configuration for Google Authorization service
     GOOGLE =  {
-        "LOGIN_HOST" : "https://accounts.google.com/o/oauth2/device/code",
-        "TOKEN_HOST" : "https://www.googleapis.com/oauth2/v4/token",
-        "GRANT_TYPE" : "http://oauth.net/grant_type/device/1.0",
+        "loginHost" : "https://accounts.google.com/o/oauth2/device/code",
+        "tokenHost" : "https://www.googleapis.com/oauth2/v4/token",
+        "grantType" : "http://oauth.net/grant_type/device/1.0",
     };
 
     // The class that represents OAuth2 Client role.
@@ -349,23 +352,23 @@ class OAuth2.DeviceFlow {
         // Parameters:
         //      provider    OAuth2 provider configuration
         //                  Must be a table with following set of strings:
-        //                      LOGIN_HOST  - provider's device authorization endpoint URI
-        //                      TOKEN_HOST  - provider's token endpoint URI
-        //                      GRANT_TYPE  - [optional] grant type
+        //                      loginHost   - provider's device authorization endpoint URI
+        //                      tokenHost   - provider's token endpoint URI
+        //                      grantType   - [optional] grant type
         //      params      Client specific parameters
         //                  Must be a table with following set of strings:
         //                      clientId    - client identifier
         //                      scope       - authorization scope
         //                      clientSecret- [optional] client secret (password)
         constructor(provider, params) {
-            if ( !("LOGIN_HOST" in provider) ||
-                 !("TOKEN_HOST" in provider) ) {
+            if ( !("loginHost" in provider) ||
+                 !("tokenHost" in provider) ) {
                      throw "Invalid Provider";
             }
-            _loginHost = provider.LOGIN_HOST;
-            _tokenHost = provider.TOKEN_HOST;
+            _loginHost = provider.loginHost;
+            _tokenHost = provider.tokenHost;
 
-            if ("GRANT_TYPE" in provider) _grantType = provider.GRANT_TYPE;
+            if ("grantType" in provider) _grantType = provider.grantType;
 
             if (!("clientId" in params) || !("scope" in params)) throw "Invalid Config";
 
@@ -380,7 +383,7 @@ class OAuth2.DeviceFlow {
         // Returns:
         //      Access token as string object
         //      Null if the client is not authorized or token is expired
-        function getValidAccessTokeOrNull() {
+        function getValidAccessTokenOrNull() {
             if (isAuthorized() && isTokenValid()) {
                 return _accessToken;
             } else {
@@ -808,12 +811,14 @@ class OAuth2.DeviceFlow {
 
         // Records error event
         function _error(txt) {
-            server.error(txt);
+            server.error("[OAuth2DeviceFlow] " + txt);
         }
 
         // Records non-error event
         function _log(txt) {
-            if (_debug) server.log(txt);
+            if (_debug) {
+                server.log("[OAuth2DeviceFlow] " + txt);
+            }
         }
     } // end of Client
 }

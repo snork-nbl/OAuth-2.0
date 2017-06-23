@@ -25,7 +25,7 @@
 #require "AWSRequestV4.class.nut:1.0.2"
 #require "AWSLambda.agent.lib.nut:1.0.0"
 //@include "../OAuth2.agent.lib.nut"
-#require "OAuth2.agent.lib.nut:1.0.0"
+#require "OAuth2.agent.lib.nut:2.0.0"
 
 const GOOGLE_ISS = "";
 const GOOGLE_SECRET_KEY = "";
@@ -44,7 +44,7 @@ local config = {
 // Initializing client with provided Google Firebase config
 client <- OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
 
-local token = client.getValidAccessTokeOrNull();
+local token = client.getValidAccessTokenOrNull();
 if (token != null) {
     server.log("Valid access token is: " + token);
 } else {
