@@ -7,13 +7,11 @@ This library provides OAuth 2.0 authentication and authorization flows. It suppo
 
 The library exposes retrieved access tokens for applications and hides provider-specific operations, including the renewal of expired tokens.
 
-**To add this library to your project, add** `#require "OAuth2.agent.lib.nut:1.0.0"` **to the top of your agent code.**
+**To add this library to your project, add** `#require "OAuth2.agent.lib.nut:2.0.0"` **to the top of your agent code.**
 
 ## OAuth2.JWTProfile.Client
 
 This class implements an OAuth 2.0 client flow using a JSON Web Token (JWT) as the means for requesting access tokens and for client authentication.
-
-**Note** The flow requires an RSA-SHA256 signature which is not currently supported by the Electric Imp [imp API](https://electricimp.com/docs/api/). As a temporary solution we suggest that you use an [AWS Lambda](https://aws.amazon.com/lambda) function that will perform [RSA-SHA256 signatures](examples#amazon-lambda-for-rsa-sha256-signatures) for an agent. However, please note that AWS Lambda is subject to a service charge so you should refer to the Amazon pricing [page](https://aws.amazon.com/lambda/pricing/) for more information before proceeding.
 
 ## OAuth2.JWTProfile.Client Usage
 
@@ -32,7 +30,6 @@ The second parameter, *userSettings*, defines a table with user- and application
 | *iss* | String | Required | The JWT issuer |
 | *scope* | String | Required | A scope. Scopes enable your application to request access only to the resources that it needs while also enabling users to control the amount of access that they grant to your application |
 | *jwtSignKey* | String | Required | A JWT sign secret key |
-| *rs256signer* | *[AWSLambda](https://github.com/electricimp/awslambda)* | Required | Instance of [AWSLambda](https://github.com/electricimp/awslambda) for RSA-SHA256 encryption. You can use [this example code](examples#jwt-profile-for-oauth-20) to create the AWS Lambda function |
 | *sub* | String | Optional. *Default:* the value of *iss* | The subject of the JWT. **Note** Google seems to ignore this field |
 
 **Note** When omitted, the optional *sub* property is substituted by the mandatory *iss* property.
@@ -40,22 +37,12 @@ The second parameter, *userSettings*, defines a table with user- and application
 #### JWT Profile Client Creation Example
 
 ```squirrel
-// AWS Lambda libraries
-#require "AWSRequestV4.class.nut:1.0.2"
-#require "AWSLambda.agent.lib.nut:1.0.0"
-
 // OAuth 2.0 library
-#require "OAuth2.agent.lib.nut:1.0.0"
+#require "OAuth2.agent.lib.nut:2.0.0"
 
 // Substitute with real values
-const LAMBDA_REGION        = "us-west-1";
-const LAMBDA_ACCESS_KEY_ID = "<AWS access key id>";
-const LAMBDA_ACCESS_KEY    = "<AWS access key>";
 const GOOGLE_ISS           = "rsalambda@quick-cacao-168121.iam.gserviceaccount.com";
 const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here\n-----END PRIVATE KEY-----\n";
-
-// Create AWS Lambda Instance
-local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
 local providerSettings =  {
     "tokenHost"  : "https://www.googleapis.com/oauth2/v4/token"
@@ -64,14 +51,11 @@ local providerSettings =  {
 local userSettings = {
     "iss"         : GOOGLE_ISS,
     "jwtSignKey"  : GOOGLE_SECRET_KEY,
-    "scope"       : "https://www.googleapis.com/auth/pubsub",
-    "rs256signer" : signer
+    "scope"       : "https://www.googleapis.com/auth/pubsub"
 };
 
 local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
 ```
-
-**Important** The name of the AWS Lambda function **must** be `RSALambda`.
 
 ## OAuth2.JWTProfile.Client Methods
 
@@ -129,18 +113,11 @@ server.log("The access token is " + (client.isTokenValid() ? "valid" : "invalid"
 ## Complete Example
 
 ```squirrel
-#require "AWSRequestV4.class.nut:1.0.2"
-#require "AWSLambda.agent.lib.nut:1.0.0"
-#require "OAuth2.agent.lib.nut:1.0.0
+#require "OAuth2.agent.lib.nut:2.0.0
 
 // Substitute with real values
-const LAMBDA_REGION        = "us-west-1";
-const LAMBDA_ACCESS_KEY_ID = "<YOUR_AWS_ACCESS_KEY_ID>";
-const LAMBDA_ACCESS_KEY    = "<YOUR_AWS_ACCESS_KEY>";
 const GOOGLE_ISS           = "rsalambda@quick-cacao-168121.iam.gserviceaccount.com";
 const GOOGLE_SECRET_KEY    = "-----BEGIN PRIVATE KEY-----\nprivate key goes here\n-----END PRIVATE KEY-----\n";
-
-local signer = AWSLambda(LAMBDA_REGION, LAMBDA_ACCESS_KEY_ID, LAMBDA_ACCESS_KEY);
 
 local providerSettings =  {
     "tokenHost" : "https://www.googleapis.com/oauth2/v4/token"
@@ -149,8 +126,7 @@ local providerSettings =  {
 local userSettings = {
     "iss"         : GOOGLE_ISS,
     "jwtSignKey"  : GOOGLE_SECRET_KEY,
-    "scope"       : "https://www.googleapis.com/auth/pubsub",
-    "rs256signer" : signer
+    "scope"       : "https://www.googleapis.com/auth/pubsub"
 };
 
 local client = OAuth2.JWTProfile.Client(providerSettings, userSettings);
@@ -330,7 +306,7 @@ client.refreshAccessToken(
 ## Complete Example
 
 ```squirrel
-#require "OAuth2.agent.lib.nut:1.0.0
+#require "OAuth2.agent.lib.nut:2.0.0
 
 // Fill CLIENT_ID and CLIENT_SECRET with correct values
 local userConfig = {
