@@ -75,11 +75,12 @@ This example demonstrates acquiring access token from
 
 Instructions below assume that you are registered at https://console.cloud.google.com.
 
-1. Open and log in at `https://console.developers.google.com`.
+1. Open and log in at [`Google cloud console`](https://console.cloud.google.com/projectselector/home/dashboard).
 1. Select the required project in the project selector (the link to the right from the
 `Google Cloud Platform` icon on the top right corner of the screen).
+1. Select `APIs and Services` from the left side menu.
 1. Select `Credentials` in the left bar.
-1. Go to the `OAuth consent screen` tab and type in your publich product name into
+1. Go to the `OAuth consent screen` tab and type in your public product name into
 the `Product name shown to users` field. Press `Save`.
 1. Select the `Credentials` tab.
 1. Click on the `Create credentials` button.
@@ -105,7 +106,7 @@ Set the example code configuration parameters with values retrieved on the previ
 
 Parameter             | Description
 ----------------------| -----------
-CLIENT_ID  			  | Google [Client ID](#creating-google-client-credentials)
+CLIENT_ID  			      | Google [Client ID](#creating-google-client-credentials)
 CLIENT_SECRET         | Google [Client Secret](#creating-google-client-credentials)
 
 **NOTE**: As the sample code includes the private key verbatim in the source,
