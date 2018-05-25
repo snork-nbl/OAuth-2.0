@@ -8,4 +8,4 @@ before_script:
   - impt auth login --local --lk ${EI_LOGIN_KEY}
 
 script:
-  - impt test run --tests GooglePubSubJWTAuth.agent.test.nut::
+  - impt test run --tests "GooglePubSubJWTAuth.agent.test.nut::"
