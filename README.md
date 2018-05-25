@@ -1,5 +1,7 @@
 # OAuth 2.0
 
+[![Build Status](https://api.travis-ci.org/electricimp/OAuth-2.0.svg?branch=master)](https://travis-ci.org/electricimp/OAuth-2.0)
+
 This library provides OAuth 2.0 authentication and authorization flows. It supports the following flows:
 
 - [OAuth2.JWTProfile.Client](#oauth2jwtprofileclient) &mdash; OAuth 2.0 with the JSON Web Token (JWT) Profile for Client Authentication and Authorization Grants as defined in [IETF RFC 7523](https://tools.ietf.org/html/rfc7523).
