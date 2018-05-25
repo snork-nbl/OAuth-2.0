@@ -156,7 +156,7 @@ class  OAuth2.JWTProfile {
                 "userCallback": tokenReadyCallback
             };
 
-            crypto.sign(crypto.RSASSA_PKCS1_SHA256, header + "." + body, CryptoHelper.decodePem(_jwtSignKey),
+            crypto.sign(crypto.RSASSA_PKCS1_SHA256, header + "." + body, _decodePem(_jwtSignKey),
                 function(err, sig) {
                     if (err) {
                         server.error(err);
@@ -182,6 +182,24 @@ class  OAuth2.JWTProfile {
         }
 
         // -------------------- PRIVATE METHODS -------------------- //
+
+        // Remove the armor, concatenate the lines, and base64 decode the text.
+        function _decodePem(str) {
+            local lines = split(str, "\n");
+            // We really ought to iterate over the array until we find a starting line,
+            // and then look for the matching ending line.
+            if ((lines[0] == "-----BEGIN PRIVATE KEY-----"
+                    && lines[lines.len() - 1] == "-----END PRIVATE KEY-----") ||
+                (lines[0] == "-----BEGIN RSA PRIVATE KEY-----"
+                    && lines[lines.len() - 1] == "-----END RSA PRIVATE KEY-----") ||
+                (lines[0] == "-----BEGIN PUBLIC KEY-----"
+                    && lines[lines.len() - 1] == "-----END PUBLIC KEY-----"))
+            {
+                local all = lines.slice(1, lines.len() - 1).reduce(@(a, b) a + b);
+                return http.base64decode(all);
+            }
+            return null;
+        }
 
         // Processes response from OAuth provider
         // Parameters:
