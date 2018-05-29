@@ -80,6 +80,7 @@ Nothing.
 
 ```squirrel
 client.acquireAccessToken(
+  // The token ready callback
   function(token, error) {
     if (error) {
       server.error(error);
@@ -124,7 +125,7 @@ Boolean &mdash; `true` if the token is valid, or `false` if the token has expire
 server.log("The access token is " + (client.isTokenValid() ? "" : "in") + "valid");
 ```
 
-## Complete Example ##
+### Complete Example ###
 
 ```squirrel
 #require "OAuth2.agent.lib.nut:2.0.0
@@ -231,7 +232,7 @@ The *notifyUserCallback* function should have the following parameters:
 
 #### Return Value ####
 
-String &mdash; This will be `null` in the case of success, or an error message if the client is already performing a request and the *force* directive is set. 
+String &mdash; `null` in the case of success, or an error message if the client is already performing a request and the *force* directive is set. 
 
 #### Example ####
 
@@ -294,7 +295,7 @@ This method checks if the client is authorized and able to refresh an expired ac
 
 #### Return Value ####
 
-Boolean &mdash; `true` if client is authorized, otherwise `false`.
+Boolean &mdash; `true` if the client is authorized, otherwise `false`.
 
 #### Example ####
 
@@ -327,6 +328,7 @@ Nothing.
 
 ```squirrel
 client.refreshAccessToken(
+  // Token Ready Callback
   function(token, error) {
     if (error) {
       server.error("Token refresh error: " + error);
@@ -337,7 +339,7 @@ client.refreshAccessToken(
 );
 ```
 
-## Complete Example ##
+### Complete Example ###
 
 ```squirrel
 #require "OAuth2.agent.lib.nut:2.0.0
