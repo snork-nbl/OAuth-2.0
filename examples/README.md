@@ -19,7 +19,7 @@ Google [OAuth2 for Service Accounts](https://developers.google.com/identity/prot
 1. Click the **Create service account** button.
 1. Enter a new service account name in the corresponding field.
 1. From the **Role** dropdown menu, select **New Account Role**. For the current example select all available **Pub/Sub** group roles.
-1. Check the **Furnish a new private key**` button. Leave all other checkboxes untouched.
+1. Check the **Furnish a new private key** button. Leave all other checkboxes untouched.
 1. Click the **Create** button.
 1. If no key is generated (the **Key ID** field contains `No key`), create a new public/private key pair
 by pressing **Create key** from the dropdown menu of the selected service account. Select **JSON** from the popup window and press **CREATE**.
@@ -69,7 +69,7 @@ the **Product name shown to users** field. Press **Save**.
 1. Select the **Credentials** tab.
 1. Click on the **Create credentials** button.
 1. Select **OAuth client ID**.
-1. Select *Other*.
+1. Select **Other**.
 1. Enter a name and click **Create**.
 1. Copy the client ID and the client secret from the popup window shown in the browser.
 
